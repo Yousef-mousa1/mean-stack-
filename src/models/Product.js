@@ -29,6 +29,11 @@ const productSchema = new mongoose.Schema(
 
     productLink: String,
 
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      default: null,
+    },
     stock: {
       type: Number,
       default: 100,

@@ -9,23 +9,21 @@ const Product = require("../src/models/Product");
 
 async function seedProducts() {
   try {
-    // Connect to MongoDB Atlas
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected");
+    console.log("MongoDB Connected");
 
     const products = [];
 
     const filePath = path.join(__dirname, "grocery_data_dec_2025.csv");
 
-    console.log("📂 File Path:", filePath);
-    console.log("📂 File Exists:", fs.existsSync(filePath));
+    console.log(" File Path:", filePath);
+    console.log(" File Exists:", fs.existsSync(filePath));
 
     fs.createReadStream(filePath)
       .pipe(csv())
       .on("data", (row) => {
-        // اطبع أول منتج بس للتأكد إن الملف بيتقري
         if (products.length === 0) {
-          console.log("✅ First Row:", row);
+          console.log(" First Row:", row);
         }
 
         products.push({
@@ -45,12 +43,10 @@ async function seedProducts() {
       })
       .on("end", async () => {
         try {
-          console.log(`📦 Total Products Read: ${products.length}`);
+          console.log(` Total Products Read: ${products.length}`);
 
-          // امسح المنتجات القديمة
           await Product.deleteMany();
 
-          // أضف المنتجات الجديدة
           await Product.insertMany(products);
 
           console.log(`✅ ${products.length} Products Inserted Successfully`);
