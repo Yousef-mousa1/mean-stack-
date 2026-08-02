@@ -1,0 +1,18 @@
+const ApiError = require("../utils/ApiError");
+
+
+const role = (...roles) => {
+  return (req, res, next) => {
+
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ApiError("You are not allowed to access this resource", 403)
+      );
+    }
+
+    next();
+  };
+};
+
+
+module.exports = { restrictTo: role };
