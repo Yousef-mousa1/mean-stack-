@@ -53,7 +53,11 @@ const register = async (data) => {
   );
 
 
-  return user;
+  // منشيلش الباسورد المشفر من الرد اللي راجع للـ frontend
+  const userResponse = user.toObject();
+  delete userResponse.password;
+
+  return userResponse;
 };
 
 
@@ -83,8 +87,12 @@ const login = async (email, password) => {
   const token = createToken(user);
 
 
+  // منشيلش الباسورد المشفر من الرد اللي راجع للـ frontend
+  const userResponse = user.toObject();
+  delete userResponse.password;
+
   return {
-    user,
+    user: userResponse,
     token
   };
 };

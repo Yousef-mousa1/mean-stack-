@@ -5,7 +5,7 @@ const restrictTo = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return next(
-        new ApiError("You are not allowed to access this resource", 403)
+        new ApiError(403, "You are not allowed to access this resource")
       );
     }
 

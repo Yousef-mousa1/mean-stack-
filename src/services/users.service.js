@@ -5,7 +5,7 @@ const getProfile = async (userId) => {
   const user = await User.findById(userId).select("-password");
 
   if (!user) {
-    throw new ApiError("User not found", 404);
+    throw new ApiError(404, "User not found");
   }
 
   return user;
@@ -24,7 +24,7 @@ const updateProfile = async (userId, data) => {
   ).select("-password");
 
   if (!user) {
-    throw new ApiError("User not found", 404);
+    throw new ApiError(404, "User not found");
   }
 
   return user;
@@ -35,7 +35,7 @@ const deleteProfile = async (userId) => {
   const user = await User.findByIdAndDelete(userId);
 
   if (!user) {
-    throw new ApiError("User not found", 404);
+    throw new ApiError(404, "User not found");
   }
 
   return user;

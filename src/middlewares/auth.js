@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!token) {
-      throw new ApiError("Authentication required", 401);
+      throw new ApiError(401, "Authentication required");
     }
 
     const decoded = jwt.verify(
@@ -15,7 +15,9 @@ const auth = (req, res, next) => {
       process.env.JWT_SECRET
     );
 
-    req.user = decoded;
+    // بنحط _id كمان جنب id، عشان كود الـ Cart/Orders
+    // اللي بيستخدم req.user._id يشتغل من غير ما نعدل فيه
+    req.user = { ...decoded, _id: decoded.id };
 
     next();
 
