@@ -79,7 +79,7 @@ const getProductById = async (req, res, next) => {
     );
 
     if (!product) {
-      return next(new ApiError("Product not found", 404));
+      return next(new ApiError(404, "Product not found"));
     }
 
     res.status(200).json({
@@ -91,7 +91,97 @@ const getProductById = async (req, res, next) => {
   }
 };
 
+// POST /api/products  (Admin only)
+const createProduct = async (req, res, next) => {
+  try {
+    const {
+      productId,
+      name,
+      description,
+      brand,
+      image,
+      price,
+      oldPrice,
+      unit,
+      packageSize,
+      productLink,
+      category,
+      stock,
+      isAvailable,
+    } = req.body;
+
+    if (!name || price === undefined) {
+      return next(new ApiError(400, "name and price are required"));
+    }
+
+    const product = await Product.create({
+      productId,
+      name,
+      description,
+      brand,
+      image,
+      price,
+      oldPrice,
+      unit,
+      packageSize,
+      productLink,
+      category,
+      stock,
+      isAvailable,
+    });
+
+    res.status(201).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// PUT /api/products/:id  (Admin only)
+const updateProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true, // رجّع النسخة بعد التحديث مش قبله
+      runValidators: true, // طبّق قواعد الـ schema (زي required) على التحديث كمان
+    });
+
+    if (!product) {
+      return next(new ApiError(404, "Product not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// DELETE /api/products/:id  (Admin only)
+const deleteProduct = async (req, res, next) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
+      return next(new ApiError(404, "Product not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
 };
