@@ -1,0 +1,25 @@
+<div class="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+  <h3 class="font-semibold mb-2">عندك كود خصم؟</h3>
+
+  <div class="flex gap-2">
+    <input [(ngModel)]="code" placeholder="اكتب كود الكوبون" class="flex-1 border rounded-lg p-2" />
+    <button
+      (click)="applyCoupon()"
+      [disabled]="loading()"
+      class="px-4 py-2 rounded-lg text-white font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300"
+    >
+      {{ loading() ? '...' : 'تطبيق' }}
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="text-red-600 text-sm mt-2">{{ errorMessage() }}</p>
+  }
+
+  @if (result()) {
+    <div class="mt-3 text-sm text-green-700 bg-green-50 rounded-lg p-2">
+      تم تطبيق الكوبون "{{ result()!.couponCode }}" — خصم {{ result()!.discountAmount }} جنيه.
+      الإجمالي بعد الخصم: {{ result()!.finalTotal }} جنيه
+    </div>
+  }
+</div>

@@ -1,0 +1,32 @@
+<section class="max-w-2xl mx-auto p-4">
+  <h2 class="text-2xl font-bold mb-4">المفضلة</h2>
+
+  <div class="flex flex-col gap-3">
+    @for (product of wishlistService.wishlist(); track product._id) {
+      <div class="flex items-center gap-4 border border-gray-200 rounded-lg p-3 bg-white shadow-sm">
+        <img
+          [src]="product.image"
+          alt="product.name"
+          (error)="onImageError($event)"
+          class="w-14 h-14 object-contain"
+        />
+
+        <div class="flex-1">
+          <h3 class="font-semibold">{{ product.name }}</h3>
+          <p class="text-gray-500 text-sm">{{ product.brand }}</p>
+        </div>
+
+        <span class="font-bold">{{ product.price }} جنيه</span>
+
+        <button
+          (click)="removeFromWishlist(product._id)"
+          class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1.5 rounded-md"
+        >
+          حذف
+        </button>
+      </div>
+    } @empty {
+      <p class="text-gray-500">مفيش منتجات في المفضلة دلوقتي.</p>
+    }
+  </div>
+</section>
