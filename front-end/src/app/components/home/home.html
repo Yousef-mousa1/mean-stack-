@@ -1,0 +1,264 @@
+<!-- ========== home.html ========== -->
+<div class="w-full bg-white">
+
+  <!-- Hero Section -->
+  <section class="py-12 md:py-20 px-6 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+
+      <!-- Left Content (Text & Button) -->
+      <div class="text-left space-y-6">
+        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#2d3748] leading-tight">
+          Discover Your Next Favorite Thing
+        </h1>
+        <p class="text-lg md:text-xl text-gray-500 font-medium">
+          Explore our curated collection of high-quality products.
+        </p>
+        <div class="pt-2">
+          <button routerLink="/products" class="px-6 py-3 border-2 border-emerald-500 text-emerald-600 font-semibold rounded-lg hover:bg-emerald-500 hover:text-white transition-all duration-300 shadow-sm">
+            Shop Now
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Image -->
+      <div class="w-full flex justify-center">
+        <div class="w-full overflow-hidden rounded-3xl shadow-lg border-4 border-emerald-900/10">
+          <img
+            [src]="heroImage"
+            alt="Hero Banner"
+            class="w-full h-[320px] sm:h-[400px] md:h-[450px] object-cover rounded-2xl">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="py-8 px-4 sm:px-6 md:py-12 bg-white">
+    <div class="max-w-7xl mx-auto">
+
+      <div class="mb-6 md:mb-10 text-center md:text-right">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+          Categories
+        </h2>
+      </div>
+
+      <!-- أول 8 Categories -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+
+        @for(cat of categories.slice(0, 8); track cat.name){
+
+        <a
+          [routerLink]="['/products', cat.name]"
+          class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2 duration-300 cursor-pointer block"
+        >
+
+          <img
+            [src]="cat.image"
+            alt="cat.name"
+            [title]="cat.name"
+            class="w-full h-36 sm:h-48 md:h-64 object-cover"
+          >
+
+          <div class="p-2 sm:p-4">
+            <p class="text-center font-semibold text-gray-800 text-xs sm:text-base">
+              {{ cat.name }}
+            </p>
+          </div>
+
+        </a>
+
+        }
+
+      </div>
+
+      <!-- آخر Category -->
+      <div class="flex justify-center">
+
+        <div class="grid grid-cols-2 gap-3 sm:gap-6 w-full max-w-sm sm:max-w-lg">
+
+          @for(cat of categories.slice(8, 10); track cat.name){
+
+          <a
+            [routerLink]="['/products', cat.name]"
+            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2 duration-300 cursor-pointer block"
+          >
+
+            <img
+              [src]="cat.image"
+              alt="cat.name"
+              title="cat.name"
+              class="w-full h-36 sm:h-48 md:h-64 object-cover"
+            >
+
+            <div class="p-2 sm:p-4">
+              <p class="text-center font-semibold text-gray-800 text-xs sm:text-base">
+                {{ cat.name }}
+              </p>
+            </div>
+
+          </a>
+
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-8 px-4 sm:px-6 md:py-12 bg-gray-50">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        @for(feature of features; track feature.title){
+          <div class="text-center p-4 bg-white md:bg-transparent rounded-lg md:rounded-none shadow-sm md:shadow-none">
+            <div class="text-4xl sm:text-5xl md:text-6xl mb-3 md:mb-4">{{feature.icon}}</div>
+            <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 mb-2">{{feature.title}}</h3>
+            <p class="text-gray-600 text-sm sm:text-base leading-relaxed">{{feature.description}}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-7xl mx-auto px-6 py-20">
+    <div class="grid lg:grid-cols-2 gap-10 items-center">
+
+      <!-- Image -->
+      <div>
+        <img
+          src="assets/log4.jpeg"
+          alt="Personal Care"
+          class="rounded-3xl shadow-xl w-full h-[450px] object-cover"
+        />
+      </div>
+
+      <!-- Content -->
+      <div>
+
+        <span
+          class="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
+          SPECIAL OFFER
+        </span>
+
+        <h2 class="text-5xl font-bold mt-6">
+          presonal care
+        </h2>
+
+        <p class="text-gray-500 mt-6 leading-8 text-lg">
+          Discover our premium Personal Care
+          collection with fresh products,
+          daily offers and fast delivery.
+        </p>
+        <div class="mt-8 flex items-center gap-4">
+
+          <span class="text-5xl font-bold text-emerald-600">
+            $49.99
+          </span>
+
+          <span class="line-through text-2xl text-gray-400">
+            $79.99
+          </span>
+
+        </div>
+
+        <button
+          class="mt-8 bg-emerald-600 text-white px-8 py-4 rounded-xl hover:bg-emerald-700 transition">
+          Shop Now
+        </button>
+
+      </div>
+
+    </div>
+  </section>
+  <section class="max-w-7xl mx-auto px-6 py-20">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    @for(card of cards; track $index){
+
+    <div class="w-100 h-[450px] [perspective:1000px] mx-auto">
+
+      <div
+        class="card-inner relative w-full h-full"
+        [class.flipped]="card.flipped">
+
+        <!-- Front -->
+        <div
+          class="absolute w-full h-full bg-white rounded-xl shadow-lg overflow-hidden backface-hidden">
+
+          <img
+            [src]="card.image"
+            alt="card.title"
+            class="w-full h-56 object-cover">
+
+          <div class="p-5">
+
+            <h2 class="text-xl font-bold mb-2">
+              {{card.title}}
+            </h2>
+
+            <p class="text-gray-500 text-sm mb-3">
+              {{card.author}} • {{card.date}}
+            </p>
+
+            <p class="text-gray-600 text-sm">
+              {{card.preview}}
+            </p>
+
+            <button
+              (click)="flipCard(card)"
+              class="mt-5 text-green-600 font-semibold hover:underline">
+
+              Read More →
+
+            </button>
+
+          </div>
+
+        </div>
+
+        <!-- Back -->
+        <div
+          class="absolute w-full h-full bg-slate-800 text-white rounded-xl shadow-lg p-6 flex flex-col justify-between [transform:rotateY(180deg)] backface-hidden">
+
+          <div>
+
+            <h2 class="text-2xl font-bold mb-4">
+              {{card.title}}
+            </h2>
+
+            <p class="text-gray-200 leading-7 text-sm">
+              {{card.description}}
+            </p>
+
+            <ul class="mt-5 space-y-2">
+              @for(feature of card.features; track $index){
+
+              <li>✔ {{feature}}</li>
+
+              }
+            </ul>
+
+          </div>
+
+          <button
+            (click)="flipCard(card)"
+            class="bg-white text-slate-800 py-2 rounded-lg font-semibold hover:bg-gray-200 transition">
+
+            ← Back
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    }
+
+  </div>
+  </section>
+</div>

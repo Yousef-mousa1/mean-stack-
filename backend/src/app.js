@@ -1,5 +1,5 @@
 const express = require("express");
-
+const cors = require("cors");
 const usersRoutes = require("./routes/users.routes");
 const productsRoutes = require("./routes/products.routes");
 const categoriesRoutes = require("./routes/categories.routes");
@@ -15,6 +15,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const app = express();
 
 app.use(express.json());
+app.use(cors());  // ← نقلناه هنا، قبل أي route
 
 app.use(generalLimiter);
 
@@ -26,7 +27,6 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", ordersRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/coupons", couponsRoutes);
-
 
 app.use(errorHandler);
 

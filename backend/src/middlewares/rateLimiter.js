@@ -3,7 +3,7 @@ const rateLimit = require("express-rate-limit");
 //  مناسب لمستخدم بيتصفح المنتجات والكاتيجوريز عادي
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 دقيقة
-  max: 10,
+  max: 1000,
   message: {
     success: false,
     message: "Too many requests, please try again later",
