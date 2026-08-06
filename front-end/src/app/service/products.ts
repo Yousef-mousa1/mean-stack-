@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IproductsResponse } from '../model/iproduct';
 
@@ -11,7 +11,11 @@ export class ProductsService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<IproductsResponse> {
-    return this.http.get<IproductsResponse>(this.API_URL);
+  getAll(categoryId?: string): Observable<IproductsResponse> {
+    let params = new HttpParams();
+    if (categoryId) {
+      params = params.set('category', categoryId);
+    }
+    return this.http.get<IproductsResponse>(this.API_URL, { params });
   }
 }

@@ -1,4 +1,6 @@
+const mongoose = require("mongoose");
 const Product = require("../models/Product");
+const Category = require("../models/Category"); // ⚠️ عدّل المسار ده لو موديل الفئة عندك في مكان مختلف
 const ApiError = require("../utils/ApiError");
 
 // GET /api/products
@@ -26,8 +28,17 @@ const getAllProducts = async (req, res, next) => {
       filter.brand = { $regex: brand, $options: "i" };
     }
 
+    // بيقبل category سواء جاي كـ ObjectId أو كاسم نصي (زي "Bakery" أو "Dairy&Egges")
     if (category) {
-      filter.category = category; // categoryId
+      if (mongoose.Types.ObjectId.isValid(category)) {
+        filter.category = category;
+      } else {
+        const categoryDoc = await Category.findOne({
+          name: { $regex: `^${category}$`, $options: "i" },
+        });
+        // لو مفيش فئة بالاسم ده، رجّع نتيجة فاضية بدل ما تكسر أو تعرض كل المنتجات غلط
+        filter.category = categoryDoc ? categoryDoc._id : null;
+      }
     }
 
     if (minPrice || maxPrice) {

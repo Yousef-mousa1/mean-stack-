@@ -20,17 +20,16 @@ const createOrder = async (req, res) => {
         // iterate on products in cart
         for (const item of cart.items) {
             const product = item.productId;
-            
             if (!product) {
                 return res.status(404).json({ message: 'Product is unavailable' });
             }
 
-            const itemPrice = product.price; 
+            const itemPrice = product.price;
             const quantity = item.quantity;
 
             totalPrice += itemPrice * quantity;
 
-            
+
             orderItems.push({
                 productId: product._id,
                 quantity: quantity,
@@ -47,13 +46,13 @@ const createOrder = async (req, res) => {
             status: 'Pending' // default state
         });
 
-        // delete cart 
+        // delete cart
         cart.items = [];
         await cart.save();
 
         return res.status(201).json({ message: 'Order is done', order });
 
-    } 
+    }
     catch (error) {
         return res.status(500).json({ message: 'Error in server', error: error.message });
     }
@@ -69,7 +68,7 @@ const getUserOrders = async (req, res) => {
 
         return res.status(200).json({ orders });
 
-    } 
+    }
     catch (error) {
         return res.status(500).json({ message: 'Error in server', error: error.message });
     }
@@ -86,7 +85,7 @@ const getAllOrders = async (req, res) => {
 
         return res.status(200).json({ orders });
 
-    } 
+    }
     catch (error) {
         return res.status(500).json({ message: 'Error in get all orders', error: error.message });
     }
@@ -107,7 +106,7 @@ const updateOrderStatus = async (req, res) => {
         const order = await Order.findByIdAndUpdate(
             orderId,
             { status },
-            { new: true } 
+            { new: true }
         );
 
         if (!order) {
@@ -116,7 +115,7 @@ const updateOrderStatus = async (req, res) => {
 
         return res.status(200).json({ message: 'Updated done on order', order });
 
-    } 
+    }
     catch (error) {
         return res.status(500).json({ message: 'Error in server', error: error.message });
     }
@@ -134,13 +133,13 @@ const deleteOrder = async (req, res) => {
 
         return res.status(200).json({ message: 'deleted order' });
 
-    } 
+    }
     catch (error) {
         return res.status(500).json({ message: 'Error in server', error: error.message });
     }
 };
 
-// to routes 
+// to routes
 module.exports = {
     createOrder,
     getUserOrders,

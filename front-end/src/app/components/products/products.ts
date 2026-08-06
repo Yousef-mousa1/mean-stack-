@@ -1,5 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { ProductsService } from '../../service/products';
+import { CategoriesService } from '../../service/categories';
 import { Iproduct } from '../../model/iproduct';
 import { WishlistService } from '../../service/wishlist';
 
@@ -16,18 +18,53 @@ export class Products implements OnInit {
 
   constructor(
     private productsService: ProductsService,
-    public wishlistService: WishlistService
+    private categoriesService: CategoriesService,
+    public wishlistService: WishlistService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    this.fetchProducts();
+    this.route.paramMap.subscribe((params) => {
+      const categoryName = params.get('category');
+      this.loadProducts(categoryName);
+    });
   }
 
-  fetchProducts() {
+  private loadProducts(categoryName: string | null) {
+    if (!categoryName) {
+      this.fetchProducts();
+      return;
+    }
+
+    this.loading.set(true);
+
+    this.categoriesService.getAll().subscribe({
+      next: (result) => {
+        if (!result.success) {
+          this.fetchProducts();
+          return;
+        }
+
+        const normalize = (str: string) =>
+          str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        const match = result.data.find(
+          (cat) => normalize(cat.name) === normalize(categoryName)
+        );
+
+        this.fetchProducts(match?._id);
+      },
+      error: () => {
+        this.fetchProducts();
+      },
+    });
+  }
+
+  fetchProducts(categoryId?: string) {
     this.loading.set(true);
     this.errorMessage.set('');
 
-    this.productsService.getAll().subscribe({
+    this.productsService.getAll(categoryId).subscribe({
       next: (result) => {
         if (result.success) {
           this.products.set(result.data);
