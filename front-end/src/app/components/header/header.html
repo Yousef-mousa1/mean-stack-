@@ -20,6 +20,11 @@
       <!-- Cart & Wishlist & Auth Action Buttons -->
       <div class="flex items-center gap-3">
 
+        <!-- Home Link -->
+        <a routerLink="/" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
+          Home
+        </a>
+
         <!-- Wishlist Icon -->
         <a routerLink="/wishlist" class="relative p-2 text-gray-700 hover:text-emerald-600 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -44,6 +49,16 @@
               {{ cartCount }}
             </span>
           }
+        </a>
+
+        <!-- Checkout Link -->
+        <a routerLink="/checkout" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
+          Checkout
+        </a>
+
+        <!-- My Orders Link -->
+        <a routerLink="/my-orders" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
+          My Orders
         </a>
 
         <!-- Login Button -->
@@ -80,8 +95,11 @@
           placeholder="Search..."
           class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm my-1"
         />
+        <a routerLink="/" class="px-2 py-1 hover:text-emerald-600">Home</a>
         <a routerLink="/products" class="px-2 py-1 hover:text-emerald-600">Products</a>
         <a routerLink="/wishlist" class="px-2 py-1 hover:text-emerald-600">Wishlist</a>
+        <a routerLink="/checkout" class="px-2 py-1 hover:text-emerald-600">Checkout</a>
+        <a routerLink="/my-orders" class="px-2 py-1 hover:text-emerald-600">My Orders</a>
         <div class="flex gap-2 pt-2">
           <a routerLink="/login" class="flex-1 text-center py-2 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">Login</a>
           <a routerLink="/register" class="flex-1 text-center py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all">Register</a>

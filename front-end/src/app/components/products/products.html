@@ -1,8 +1,15 @@
 <section class="max-w-6xl mx-auto p-4">
   <h2 class="text-2xl font-bold mb-4">المنتجات</h2>
 
+  @if (errorMessage()) {
+    <div class="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm text-center">
+      {{ errorMessage() }}
+    </div>
+  }
+
   <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-    @for (product of products(); track product._id) {      <div class="relative border border-gray-200 rounded-xl p-3 text-center bg-white shadow-sm">
+    @for (product of products(); track product._id) {
+      <div class="relative border border-gray-200 rounded-xl p-3 text-center bg-white shadow-sm">
         <button
           (click)="toggleWishlist(product)"
           class="absolute top-2 end-2 text-xl"

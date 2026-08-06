@@ -1,7 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ProductsService } from '../../service/products';
 import { CategoriesService } from '../../service/categories';
+import { CartService } from '../../service/cart.service';
 import { Iproduct } from '../../model/iproduct';
 import { WishlistService } from '../../service/wishlist';
 
@@ -20,7 +21,9 @@ export class Products implements OnInit {
     private productsService: ProductsService,
     private categoriesService: CategoriesService,
     public wishlistService: WishlistService,
-    private route: ActivatedRoute
+    private cartService: CartService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -37,21 +40,17 @@ export class Products implements OnInit {
     }
 
     this.loading.set(true);
-
     this.categoriesService.getAll().subscribe({
       next: (result) => {
         if (!result.success) {
           this.fetchProducts();
           return;
         }
-
         const normalize = (str: string) =>
           str.toLowerCase().replace(/[^a-z0-9]/g, '');
-
         const match = result.data.find(
           (cat) => normalize(cat.name) === normalize(categoryName)
         );
-
         this.fetchProducts(match?._id);
       },
       error: () => {
@@ -85,7 +84,22 @@ export class Products implements OnInit {
 
   addToCart(product: Iproduct) {
     if (!product.isAvailable) return;
-    console.log('Add to cart:', product.name);
+
+    this.cartService.addToCart(product._id, 1).subscribe({
+      next: () => {
+        // بعد ما المنتج يتضاف بنجاح، وديه على صفحة السلة
+        this.router.navigate(['/cart']);
+      },
+      error: (err) => {
+        console.error('Add to cart error:', err);
+        // 401 معناها لسه مسجّلش دخول (الـ auth لسه مش متكامل)
+        if (err.status === 401) {
+          this.errorMessage.set('لازم تسجّل الدخول الأول عشان تضيف للسلة');
+        } else {
+          this.errorMessage.set('حصلت مشكلة في إضافة المنتج للسلة');
+        }
+      },
+    });
   }
 
   toggleWishlist(product: Iproduct) {
