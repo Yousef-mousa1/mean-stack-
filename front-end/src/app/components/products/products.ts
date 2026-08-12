@@ -17,6 +17,9 @@ export class Products implements OnInit {
   loading = signal(false);
   errorMessage = signal('');
 
+  // رابط الباك اند - غيّره لو الـ port مختلف أو وقت الـ deployment
+  private readonly backendUrl = 'http://localhost:3000';
+
   constructor(
     private productsService: ProductsService,
     private categoriesService: CategoriesService,
@@ -108,6 +111,14 @@ export class Products implements OnInit {
 
   isInWishlist(productId: string): boolean {
     return this.wishlistService.isInWishlist(productId);
+  }
+
+  // بيحوّل مسار الصورة النسبي (/images/xxx.jpg) لرابط كامل على الباك اند.
+  // لو الرابط جاهز كامل (http...) بيسيبه زي ما هو، ولو مفيش صورة بيرجّع placeholder.
+  getImageUrl(image: string | undefined | null): string {
+    if (!image) return 'https://via.placeholder.com/150?text=No+Image';
+    if (image.startsWith('http')) return image;
+    return `${this.backendUrl}${image}`;
   }
 
   onImageError(event: Event) {

@@ -1,0 +1,46 @@
+<div class="auth-container">
+
+  <div class="auth-image">
+   <img src="assets\images\login.jpg" alt="login">
+  </div>
+
+
+  <div class="auth-form">
+
+    <h2>Login</h2>
+
+    <form (ngSubmit)="login()">
+
+      <input
+        type="email"
+        placeholder="Email"
+        [(ngModel)]="email"
+        name="email"
+      >
+
+
+      <input
+        type="password"
+        placeholder="Password"
+        [(ngModel)]="password"
+        name="password"
+      >
+
+
+      <button type="submit">
+        Login
+      </button>
+
+    </form>
+
+
+    <p>
+      Don't have an account?
+      <a routerLink="/register">
+        Register
+      </a>
+    </p>
+
+  </div>
+
+</div>

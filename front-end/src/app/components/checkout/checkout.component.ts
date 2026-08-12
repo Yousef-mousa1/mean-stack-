@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { OrderService } from '../../service/order.service';
 import { CartService } from '../../service/cart.service';
+import { OrdersService } from '../../service/Orders.service';
 
 @Component({
   selector: 'app-checkout',
@@ -15,7 +15,7 @@ export class CheckoutComponent {
   shippingAddress: string = '';
 
   constructor(
-    private orderService: OrderService,
+    private orderService: OrdersService,
     private cartService: CartService
   ) {}
 
@@ -25,11 +25,7 @@ export class CheckoutComponent {
       return;
     }
 
-    const orderPayload = {
-      Address: this.shippingAddress
-    };
-
-    this.orderService.createOrder(orderPayload).subscribe({
+    this.orderService.createOrder(this.shippingAddress).subscribe({
       next: (response: any) => {
         alert('Order placed successfully!');
         this.cartService.getCart();

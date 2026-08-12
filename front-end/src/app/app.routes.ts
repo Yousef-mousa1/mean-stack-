@@ -7,12 +7,24 @@ import { AdminCategories } from './components/admin-categories/admin-categories'
 import { CartComponent } from './components/cart/cart.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { MyOrdersComponent } from './components/my-orders/my-orders.component';
+import { ApplyCoupon } from './components/apply-coupon/apply-coupon';
+import { Login } from './components/login/login';
+import { Register } from './components/rigister/rigister';
+import { VerifyOtp } from './components/verify-otp/verify-otp';
+import { Dashboard } from './components/dashboard/dashboard';
+import { islogginGuard } from './guards/isloggin-guard-guard';
+import { AdminDashboard } from './components/admin-dashboard/admin-dashboard';
 
 export const routes: Routes = [
  {
     path: '',
-    component: Home
+   component: Home
   },
+  {
+    path: 'coupon',
+    component: ApplyCoupon,
+  },
+
   {
     path: 'wishlist',
     component: Wishlist
@@ -45,6 +57,37 @@ export const routes: Routes = [
     path: 'my-orders',
     component: MyOrdersComponent
   },
+
+  {
+    path: 'login',
+    component: Login,
+  },
+
+  {
+    path: 'register',
+    component: Register,
+  },
+  {
+    path: 'verify-otp/:userId',
+    component: VerifyOtp,
+  },
+  {
+    path: 'dashboard',
+    component: Dashboard,
+    canActivate: [islogginGuard],
+  },
+  {
+    path: 'admin-dashboard',
+    component: AdminDashboard,
+    canActivate: [islogginGuard],
+  },
+
+
+
+
+
+
+
   {
     path: '**',
     redirectTo: ''

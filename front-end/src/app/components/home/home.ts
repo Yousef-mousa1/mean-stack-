@@ -69,9 +69,11 @@ export class Home {
     }
   ];
 
+  // ملحوظة: أسماء الكاتيجوريز دي لازم تتطابق تمامًا (بعد الـ normalize) مع
+  // أسماء الـ Categories الموجودة في الباك اند، وإلا الفلترة بالكاتيجوري مش هتشتغل.
   categories = [
     { name: 'Bakery', image: 'assets/bakery.jpeg' },
-    { name: 'Dairy&Egges', image: 'assets/d&epng.png' },
+    { name: 'Dairy & Eggs', image: 'assets/d&epng.png' },
     { name: 'Meat & Seafood', image: 'assets/m&s.jpeg' },
     { name: 'Fruits & Vegetables', image: 'assets/f&v.png' },
     { name: 'Frozen', image: 'assets/frozen.png' },

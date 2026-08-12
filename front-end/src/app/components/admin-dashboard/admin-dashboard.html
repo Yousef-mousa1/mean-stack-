@@ -1,0 +1,101 @@
+<div class="container mt-5">
+
+  <h2 class="mb-4">Admin Dashboard</h2>
+
+  <table class="table table-bordered">
+
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+
+      @for (user of users; track user._id) {
+
+        <tr>
+
+          <td>{{ user.name }}</td>
+
+          <td>{{ user.email }}</td>
+
+          <td>{{ user.role }}</td>
+
+          <td>
+
+            <button
+              class="btn btn-warning btn-sm me-2"
+              (click)="onUpdateUser(user)">
+              Edit
+            </button>
+
+
+            <button
+              class="btn btn-danger btn-sm"
+              (click)="onDeleteUser(user._id)">
+              Delete
+            </button>
+
+          </td>
+
+        </tr>
+
+      }
+
+    </tbody>
+
+  </table>
+
+
+  @if (isEditModalOpen) {
+
+    <div class="card p-4 mt-3">
+
+      <h4>Edit User</h4>
+
+      <input
+        class="form-control mb-2"
+        [(ngModel)]="selectedUser.name"
+        placeholder="Name">
+
+
+      <input
+        class="form-control mb-2"
+        [(ngModel)]="selectedUser.email"
+        placeholder="Email">
+
+
+<select class="form-control mb-2"
+[(ngModel)]="selectedUser.role">
+
+<option value="admin">Admin</option>
+<option value="customer">Customer</option>
+
+</select>
+
+
+
+
+
+      <button
+        class="btn btn-success me-2"
+        (click)="saveUserChanges()">
+        Save
+      </button>
+
+
+      <button
+        class="btn btn-secondary"
+        (click)="closeModal()">
+        Cancel
+      </button>
+
+    </div>
+
+  }
+
+</div>

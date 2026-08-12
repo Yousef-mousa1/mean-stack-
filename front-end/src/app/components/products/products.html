@@ -19,7 +19,12 @@
           ♥
         </button>
 
-        <img [src]="product.image" alt="product.name" class="w-full h-36 object-contain" />
+        <img
+          [src]="getImageUrl(product.image)"
+          (error)="onImageError($event)"
+          alt="product.name"
+          class="w-full h-36 object-contain"
+        />
         <h3 class="font-semibold mt-2">{{ product.name }}</h3>
         <p class="text-gray-500 text-sm">{{ product.brand }}</p>
 
@@ -48,8 +53,9 @@
           أضف للسلة
         </button>
       </div>
-    } @empty {
+    <!-- } @empty {
       <p class="text-gray-500 col-span-full">مفيش منتجات دلوقتي.</p>
+    } -->
     }
   </div>
 </section>

@@ -1,0 +1,27 @@
+<div class="container mt-5">
+
+  <h2 class="mb-4">Customer Dashboard</h2>
+
+  <div class="card p-4">
+
+    <h4>Welcome {{ user.name }}</h4>
+
+    <p>
+      <strong>Email:</strong>
+      {{ user.email }}
+    </p>
+
+    <p>
+      <strong>Role:</strong>
+      {{ user.role }}
+    </p>
+
+    <button
+      class="btn btn-danger"
+      (click)="logout()">
+      Logout
+    </button>
+
+  </div>
+
+</div>
