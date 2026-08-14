@@ -52,6 +52,13 @@ export class Auth {
     this.currentUser.set(user);
   }
 
+  // بيتنادى بعد ما اليوزر يعدّل بياناته من صفحة البروفايل، عشان الاسم يتحدث
+  // في الهيدر وأي مكان تاني فورًا من غير ما يحتاج يعمل login تاني
+  updateCurrentUser(user: AuthUser) {
+    localStorage.setItem('user', JSON.stringify(user));
+    this.currentUser.set(user);
+  }
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');

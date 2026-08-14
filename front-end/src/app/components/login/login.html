@@ -1,45 +1,58 @@
-<div class="auth-container">
+<!-- Container الرئيسي -->
+<div class="login-bg min-h-screen flex items-center justify-center p-4">
 
-  <div class="auth-image">
-   <img src="assets\images\login.jpg" alt="login">
-  </div>
+  <!-- الكارت الزجاجي الرئيسي -->
+  <div class="w-full max-w-sm sm:-mt-10 sm:translate-x-[400px] bg-white/8 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:shadow-xl">
 
+    <!-- الـ div الداخلي بعد إزالة التضارب في العرض والـ padding -->
+    <div class="w-full flex flex-col justify-center">
 
-  <div class="auth-form">
+      <h2 class="text-2xl font-bold text-white mb-6 text-center">Login</h2>
 
-    <h2>Login</h2>
+      <form (ngSubmit)="login()" class="space-y-4">
 
-    <form (ngSubmit)="login()">
+        <!-- حقل الإيميل -->
+        <div>
+          <label class="block mb-2 text-sm font-semibold text-gray-200">Email</label>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            [(ngModel)]="email"
+            name="email"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+            />
+        </div>
 
-      <input
-        type="email"
-        placeholder="Email"
-        [(ngModel)]="email"
-        name="email"
-      >
+        <!-- حقل كلمة المرور -->
+        <div>
+          <label class="block mb-2 text-sm font-semibold text-gray-200">Password</label>
+          <input
+            type="password"
+            placeholder="Enter your password"
+            [(ngModel)]="password"
+            name="password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+            />
+        </div>
 
+        <!-- زر الدخول -->
+        <button
+          type="submit"
+          class="w-full mt-2 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition shadow-lg cursor-pointer">
+          Login
+        </button>
 
-      <input
-        type="password"
-        placeholder="Password"
-        [(ngModel)]="password"
-        name="password"
-      >
+      </form>
 
+      <!-- رابط التسجيل -->
+      <p class="mt-6 text-center text-sm text-gray-300">
+        Don't have an account?
+        <a routerLink="/register" class="font-semibold text-green-500 hover:text-green-400 hover:underline transition">
+          Register
+        </a>
+      </p>
 
-      <button type="submit">
-        Login
-      </button>
-
-    </form>
-
-
-    <p>
-      Don't have an account?
-      <a routerLink="/register">
-        Register
-      </a>
-    </p>
+    </div>
 
   </div>
 

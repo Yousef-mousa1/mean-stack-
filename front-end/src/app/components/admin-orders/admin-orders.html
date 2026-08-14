@@ -1,0 +1,126 @@
+<app-admin-nav></app-admin-nav>
+
+<div class="max-w-6xl mx-auto px-4 py-8 mt-8">
+
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">Orders</h2>
+
+    <select
+      title="status filter"
+      class="rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+      [(ngModel)]="statusFilter"
+      (ngModelChange)="onStatusFilterChange()">
+      <option value="">All Statuses</option>
+      @for (s of statuses; track s) {
+        <option [value]="s">{{ s }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left">
+
+        <thead class="bg-gray-900 text-white text-xs uppercase tracking-wide">
+          <tr>
+            <th class="px-6 py-3">Order ID</th>
+            <th class="px-6 py-3">Customer</th>
+            <th class="px-6 py-3">Items</th>
+            <th class="px-6 py-3">Total</th>
+            <th class="px-6 py-3">Address</th>
+            <th class="px-6 py-3">Date</th>
+            <th class="px-6 py-3">Status</th>
+            <th class="px-6 py-3 text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+
+          @if (isLoading) {
+
+            <tr>
+              <td colspan="8" class="px-6 py-10 text-center text-gray-400">
+                Loading orders...
+              </td>
+            </tr>
+
+          } @else {
+
+            @for (order of filteredOrders; track order._id) {
+
+              <tr class="hover:bg-gray-50 transition-colors">
+
+                <td class="px-6 py-4 text-gray-500 text-xs">#{{ order._id.slice(-6) }}</td>
+
+                <td class="px-6 py-4 text-gray-800">
+                  @if (order.userId) {
+                    <div class="font-medium">{{ order.userId.name }}</div>
+                    <div class="text-xs text-gray-400">{{ order.userId.email }}</div>
+                  } @else {
+                    <div class="font-medium text-gray-400 italic">Deleted User</div>
+                  }
+                </td>
+
+                <td class="px-6 py-4 text-gray-600">
+                  @for (item of order.items; track item.productId?._id) {
+                    <div class="text-xs">{{ item.productId?.name || 'Product' }} × {{ item.quantity }}</div>
+                  }
+                </td>
+
+                <td class="px-6 py-4 font-medium text-gray-800">{{ order.totalPrice }} EGP</td>
+
+                <td class="px-6 py-4 text-gray-500 text-xs max-w-[160px] truncate">{{ order.Address }}</td>
+
+                <td class="px-6 py-4 text-gray-500 text-xs">{{ order.createdAt | date:'mediumDate' }}</td>
+
+                <td class="px-6 py-4">
+                  <select
+                    title="order status"
+                    class="rounded-lg border px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-gray-800"
+                    [class.bg-amber-50]="order.status === 'Pending'"
+                    [class.text-amber-700]="order.status === 'Pending'"
+                    [class.bg-blue-50]="order.status === 'Processing'"
+                    [class.text-blue-700]="order.status === 'Processing'"
+                    [class.bg-emerald-50]="order.status === 'Delivered'"
+                    [class.text-emerald-700]="order.status === 'Delivered'"
+                    [class.bg-red-50]="order.status === 'Cancelled'"
+                    [class.text-red-700]="order.status === 'Cancelled'"
+                    [ngModel]="order.status"
+                    (ngModelChange)="onChangeStatus(order, $event)">
+                    @for (s of statuses; track s) {
+                      <option [value]="s">{{ s }}</option>
+                    }
+                  </select>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="flex justify-end">
+                    <button
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                      (click)="onDeleteOrder(order._id)">
+                      Delete
+                    </button>
+                  </div>
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td colspan="8" class="px-6 py-10 text-center text-gray-400">
+                  No orders found.
+                </td>
+              </tr>
+
+            }
+
+          }
+
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</div>

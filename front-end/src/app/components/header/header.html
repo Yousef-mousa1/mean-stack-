@@ -1,149 +1,139 @@
-<header
-  class="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
-  [class.bg-white]="isScrolled()"
-  [class.shadow-sm]="isScrolled()"
-  [class.bg-transparent]="!isScrolled()"
->
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center justify-between h-16 gap-4">
+@if (!isAdminSection()) {
+  <header
+    class="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
+    [class.bg-white]="isScrolled()"
+    [class.shadow-sm]="isScrolled()"
+    [class.bg-transparent]="!isScrolled()"
+  >
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between h-16 gap-4">
 
-      <!-- Logo -->
-      <a routerLink="/" class="text-xl font-bold text-emerald-600 shrink-0">
-        Mousa Shop
-      </a>
+        <a routerLink="/" class="text-xl font-bold text-emerald-600 shrink-0">
+          Mousa Shop
+        </a>
 
-      <!-- Search Input -->
-      @if (showSearch()) {
-        <div class="hidden md:flex flex-1 max-w-xl">
-          <input
-            type="text"
-            placeholder="Search..."
-            class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
-          />
+        @if (showSearch()) {
+          <div class="hidden md:flex flex-1 max-w-xl">
+            <input
+              type="text"
+              placeholder="Search..."
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="onSearch()"
+              class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
+            />
+          </div>
+        }
+
+        <div class="flex items-center gap-3">
+
+          <a routerLink="/" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
+            Home
+          </a>
+
+          <a routerLink="/wishlist" class="relative p-2 text-gray-700 hover:text-emerald-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+            @if (wishlistService.wishlist().length > 0) {
+              <span class="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {{ wishlistService.wishlist().length }}
+              </span>
+            }
+          </a>
+
+          <a routerLink="/cart" class="relative p-2 text-gray-700 hover:text-emerald-600 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.5 5M17 21a1 1 0 100-2 1 1 0 000 2zM9 21a1 1 0 100-2 1 1 0 000 2z" />
+            </svg>
+            @if (cartCount > 0) {
+              <span class="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {{ cartCount }}
+              </span>
+            }
+          </a>
+
+          <a routerLink="/checkout" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
+            Checkout
+          </a>
+
+          <a routerLink="/my-orders" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
+            My Orders
+          </a>
+
+          @if (auth.isLoggedIn()) {
+            <div class="hidden md:flex items-center gap-2">
+              <span class="text-sm font-medium text-gray-700">
+                Hello, {{ auth.currentUser()?.name }}
+              </span>
+              <button
+                (click)="logout()"
+                class="inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-red-600 border border-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-300"
+              >
+                Logout
+              </button>
+            </div>
+          } @else {
+            <a
+              routerLink="/login"
+              class="hidden md:inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300"
+            >
+              Login
+            </a>
+
+            <a
+              routerLink="/register"
+              class="hidden md:inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300"
+            >
+              Register
+            </a>
+          }
+
+          <button class="md:hidden text-gray-700 p-2" (click)="toggleMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      @if (isMenuOpen) {
+        <div class="md:hidden pb-4 pt-2 flex flex-col gap-3 text-sm font-medium border-t border-gray-100 bg-white">
+          @if (showSearch()) {
+            <input
+              type="text"
+              placeholder="Search..."
+              [(ngModel)]="searchTerm"
+              (keyup.enter)="onSearch()"
+              class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm my-1"
+            />
+          }
+          <a routerLink="/" class="px-2 py-1 hover:text-emerald-600">Home</a>
+          <a routerLink="/products" class="px-2 py-1 hover:text-emerald-600">Products</a>
+          <a routerLink="/wishlist" class="px-2 py-1 hover:text-emerald-600">Wishlist</a>
+          <a routerLink="/checkout" class="px-2 py-1 hover:text-emerald-600">Checkout</a>
+          <a routerLink="/my-orders" class="px-2 py-1 hover:text-emerald-600">My Orders</a>
+
+          @if (auth.isLoggedIn()) {
+            <div class="flex items-center justify-between px-2 pt-2">
+              <span class="text-sm font-medium text-gray-700">
+                Hello, {{ auth.currentUser()?.name }}
+              </span>
+              <button
+                (click)="logout()"
+                class="text-sm font-semibold text-red-600 border border-red-500 rounded-lg px-3 py-1.5 hover:bg-red-600 hover:text-white transition-all"
+              >
+                Logout
+              </button>
+            </div>
+          } @else {
+            <div class="flex gap-2 pt-2">
+              <a routerLink="/login" class="flex-1 text-center py-2 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">Login</a>
+              <a routerLink="/register" class="flex-1 text-center py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all">Register</a>
+            </div>
+          }
         </div>
       }
-
-
-      <!-- Cart & Wishlist & Auth Action Buttons -->
-      <div class="flex items-center gap-3">
-
-        <!-- Home Link -->
-        <a routerLink="/" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
-          Home
-        </a>
-
-        <!-- Wishlist Icon -->
-        <a routerLink="/wishlist" class="relative p-2 text-gray-700 hover:text-emerald-600 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-          </svg>
-          @if (wishlistService.wishlist().length > 0) {
-            <span class="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-              {{ wishlistService.wishlist().length }}
-            </span>
-          }
-        </a>
-
-        <!-- Cart Icon -->
-        <a routerLink="/cart" class="relative p-2 text-gray-700 hover:text-emerald-600 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.5 5M17 21a1 1 0 100-2 1 1 0 000 2zM9 21a1 1 0 100-2 1 1 0 000 2z" />
-          </svg>
-          @if (cartCount > 0) {
-            <span class="absolute top-0 right-0 bg-emerald-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-              {{ cartCount }}
-            </span>
-          }
-        </a>
-
-        <!-- Checkout Link -->
-        <a routerLink="/checkout" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
-          Checkout
-        </a>
-
-        <!-- My Orders Link -->
-        <a routerLink="/my-orders" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
-          My Orders
-        </a>
-
-        @if (auth.isLoggedIn()) {
-          <!-- Logged-in state: greeting + logout -->
-          <div class="hidden md:flex items-center gap-2">
-            <span class="text-sm font-medium text-gray-700">
-              Hello, {{ auth.currentUser()?.name }}
-            </span>
-            <button
-              (click)="logout()"
-              class="inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-red-600 border border-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-300"
-            >
-              Logout
-            </button>
-          </div>
-        } @else {
-          <!-- Login Button -->
-          <a
-            routerLink="/login"
-            class="hidden md:inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300"
-          >
-            Login
-          </a>
-
-          <!-- Register Button -->
-          <a
-            routerLink="/register"
-            class="hidden md:inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300"
-          >
-            Register
-          </a>
-        }
-
-        <!-- Mobile Menu Toggle Button -->
-        <button class="md:hidden text-gray-700 p-2" (click)="toggleMenu()">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
-
     </div>
-
-    <!-- Mobile Dropdown Menu -->
-    @if (isMenuOpen) {
-      <div class="md:hidden pb-4 pt-2 flex flex-col gap-3 text-sm font-medium border-t border-gray-100 bg-white">
-        @if (showSearch()) {
-          <input
-            type="text"
-            placeholder="Search..."
-            class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm my-1"
-          />
-        }
-        <a routerLink="/" class="px-2 py-1 hover:text-emerald-600">Home</a>
-        <a routerLink="/products" class="px-2 py-1 hover:text-emerald-600">Products</a>
-        <a routerLink="/wishlist" class="px-2 py-1 hover:text-emerald-600">Wishlist</a>
-        <a routerLink="/checkout" class="px-2 py-1 hover:text-emerald-600">Checkout</a>
-        <a routerLink="/my-orders" class="px-2 py-1 hover:text-emerald-600">My Orders</a>
-
-        @if (auth.isLoggedIn()) {
-          <div class="flex items-center justify-between px-2 pt-2">
-            <span class="text-sm font-medium text-gray-700">
-              Hello, {{ auth.currentUser()?.name }}
-            </span>
-            <button
-              (click)="logout()"
-              class="text-sm font-semibold text-red-600 border border-red-500 rounded-lg px-3 py-1.5 hover:bg-red-600 hover:text-white transition-all"
-            >
-              Logout
-            </button>
-          </div>
-        } @else {
-          <div class="flex gap-2 pt-2">
-            <a routerLink="/login" class="flex-1 text-center py-2 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">Login</a>
-            <a routerLink="/register" class="flex-1 text-center py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all">Register</a>
-          </div>
-        }
-      </div>
-    }
-  </div>
-</header>
+  </header>
+}

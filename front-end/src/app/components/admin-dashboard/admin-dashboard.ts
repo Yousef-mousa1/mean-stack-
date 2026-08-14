@@ -2,10 +2,13 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../service/user';
+import { OrdersService } from '../../service/Orders.service';
+import { AdminNav } from '../admin-nav/admin-nav';
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminNav],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.css',
 })
@@ -16,14 +19,20 @@ export class AdminDashboard implements OnInit {
   isEditModalOpen: boolean = false;
   selectedUser: any = {};
 
+  // Orders modal state
+  isOrdersModalOpen: boolean = false;
+  selectedUserOrders: any[] = [];
+  selectedUserName: string = '';
+  isLoadingOrders: boolean = false;
+
   constructor(
     private userService: User,
+    private ordersService: OrdersService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadUsers();
-
   }
 
   loadUsers(): void {
@@ -89,5 +98,32 @@ export class AdminDashboard implements OnInit {
         alert('Failed to update user.');
       }
     });
+  }
+
+  // Open Orders Modal
+  onViewOrders(user: any): void {
+    this.selectedUserName = user.name;
+    this.isOrdersModalOpen = true;
+    this.isLoadingOrders = true;
+    this.selectedUserOrders = [];
+
+    this.ordersService.getOrdersByUserId(user._id).subscribe({
+      next: (res: any) => {
+        this.selectedUserOrders = res?.orders || [];
+        this.isLoadingOrders = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching orders:', err);
+        this.isLoadingOrders = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  closeOrdersModal(): void {
+    this.isOrdersModalOpen = false;
+    this.selectedUserOrders = [];
+    this.selectedUserName = '';
   }
 }

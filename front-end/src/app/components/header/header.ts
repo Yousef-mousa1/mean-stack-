@@ -1,7 +1,8 @@
 import { Wishlist } from './../wishlist/wishlist';
 import { Component, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, NavigationEnd } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { WishlistService } from '../../service/wishlist';
 import { Auth } from '../../service/auth';
@@ -9,7 +10,7 @@ import { Auth } from '../../service/auth';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -17,32 +18,36 @@ export class Header {
   cartCount = 0;
   isMenuOpen = false;
 
-  // بتتغيّر لـ true بعد ما اليوزر يعمل سكرول لتحت شوية، وبنستخدمها في الـ HTML
-  // عشان نبدّل خلفية الهيدر من شفافة لبيضة
   isScrolled = signal(false);
-
-  // شريط البحث بيظهر بس في الصفحة الرئيسية وصفحات المنتجات/الكاتيجوريز
   showSearch = signal(true);
+  isAdminSection = signal(false);
 
-  // بحقن الـ services المشتركة عشان نعرض عدد المنتجات في الويش ليست وحالة تسجيل الدخول
+  // نص البحث المكتوب في الـ input
+  searchTerm = signal('');
+
   constructor(
     public wishlistService: WishlistService,
     public auth: Auth,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
-    // قيمة أولية بناءً على الصفحة الحالية وقت ما الهيدر يتحمّل
     this.showSearch.set(this.isSearchVisible(this.router.url));
+    this.isAdminSection.set(this.isAdminRoute(this.router.url));
 
-    // بعد كده بنتابع أي تنقّل بين الصفحات ونحدّث القيمة
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event) => {
         this.showSearch.set(this.isSearchVisible(event.urlAfterRedirects));
+        this.isAdminSection.set(this.isAdminRoute(event.urlAfterRedirects));
       });
   }
 
   private isSearchVisible(url: string): boolean {
     return url === '/' || url.startsWith('/products');
+  }
+
+  private isAdminRoute(url: string): boolean {
+    return url.startsWith('/admin');
   }
 
   toggleMenu(): void {
@@ -56,5 +61,18 @@ export class Header {
 
   logout(): void {
     this.auth.logout();
+  }
+
+  // بيتنفّذ لما اليوزر يدوس Enter في حقل السيرش (أو زرار البحث لو ضفناه)
+  onSearch(): void {
+    const term = this.searchTerm().trim();
+
+    this.router.navigate(['/products'], {
+      queryParams: { search: term || null },
+      queryParamsHandling: 'merge',
+    });
+
+    // يقفل المنيو لو اليوزر كان على الموبايل
+    this.isMenuOpen = false;
   }
 }

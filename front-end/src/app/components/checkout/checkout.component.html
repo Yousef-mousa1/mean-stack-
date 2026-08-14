@@ -1,18 +1,115 @@
-<div class="checkout-container container mt-4">
-  <h2>Checkout</h2>
-  <form (ngSubmit)="placeOrder()">
-    <div class="mb-3">
-      <label class="form-label">Shipping Address:</label>
-      <input 
-        type="text" 
-        [(ngModel)]="shippingAddress" 
-        name="shippingAddress" 
-        required 
-        class="form-control" 
-        placeholder="Enter your address here..."
-      >
-    </div>
+<div class="checkout-page">
+  <h2 class="checkout-heading">Checkout</h2>
 
-    <button type="submit" class="btn btn-success">Confirm Order</button>
-  </form>
+  @if (loading()) {
+    <div class="loading-state">Loading cart...</div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">{{ errorMessage() }}</div>
+  }
+
+  @if (!loading() && cart() && cart()!.items.length > 0) {
+    <div class="checkout-layout">
+
+      <!-- Cart Summary -->
+      <div class="cart-summary-box">
+        <h3>ملخص الطلب</h3>
+        @for (item of cart()!.items; track item.productId._id) {
+          <div class="summary-item">
+            <img
+              [src]="getImageUrl(item.productId.image)"
+              (error)="onImageError($event)"
+              [alt]="item.productId.name"
+              class="summary-img"
+            />
+            <div class="summary-info">
+              <span class="summary-name">{{ item.productId.name }}</span>
+              <span class="summary-qty">x{{ item.quantity }}</span>
+            </div>
+            <span class="summary-price">{{ item.productId.price * item.quantity }} ج.م</span>
+          </div>
+        }
+
+        <!-- Coupon Section -->
+        <div class="coupon-box">
+          @if (!appliedCoupon()) {
+            <div class="coupon-input-row">
+              <input
+                type="text"
+                [(ngModel)]="couponCode"
+                placeholder="كود الكوبون (اختياري)"
+                class="field-input"
+              />
+              <button
+                class="apply-coupon-btn"
+                (click)="applyCoupon()"
+                [disabled]="applyingCoupon()"
+              >
+                {{ applyingCoupon() ? 'جاري التطبيق...' : 'تطبيق' }}
+              </button>
+            </div>
+            @if (couponError()) {
+              <p class="coupon-error">{{ couponError() }}</p>
+            }
+          } @else {
+            <div class="coupon-applied-row">
+              <span>✅ الكوبون "{{ appliedCoupon()!.code }}" مطبّق</span>
+              <button class="remove-coupon-btn" (click)="removeCoupon()">إزالة</button>
+            </div>
+          }
+        </div>
+
+        <div class="summary-total-row">
+          <span>الإجمالي ({{ totalItems() }} قطعة)</span>
+          <span>{{ totalPrice() }} ج.م</span>
+        </div>
+
+        @if (appliedCoupon()) {
+          <div class="summary-discount-row">
+            <span>الخصم</span>
+            <span>- {{ appliedCoupon()!.discountAmount }} ج.م</span>
+          </div>
+          <div class="summary-final-row">
+            <span>الإجمالي بعد الخصم</span>
+            <span>{{ finalTotal() }} ج.م</span>
+          </div>
+        }
+      </div>
+
+      <!-- Address Form -->
+      <div class="address-box">
+        <h3>بيانات التوصيل</h3>
+
+        <label class="field-label">العنوان</label>
+        <textarea
+          [(ngModel)]="address"
+          rows="3"
+          placeholder="اكتب عنوانك بالتفصيل..."
+          class="field-input"
+        ></textarea>
+
+        <label class="field-label">رقم التليفون</label>
+        <input
+          type="tel"
+          [(ngModel)]="phone"
+          placeholder="01xxxxxxxxx"
+          class="field-input"
+        />
+
+        <button
+          class="confirm-btn"
+          (click)="submitOrder()"
+          [disabled]="submitting()"
+        >
+          {{ submitting() ? 'جاري التنفيذ...' : 'تأكيد الطلب' }}
+        </button>
+      </div>
+    </div>
+  } @else if (!loading()) {
+    <div class="empty-state">
+      <p>🛒</p>
+      <p>السلة فاضية، ضيف منتجات الأول</p>
+    </div>
+  }
 </div>

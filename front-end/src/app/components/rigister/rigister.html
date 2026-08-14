@@ -1,64 +1,74 @@
-<div class="register-bg">
+<!-- الخلفية: تم الحفاظ على الكلاسات الخاصة بك مع إضافة min-h-screen و flex و h-full للتوسيط العمودي -->
+<div class="register-bg min-h-screen flex items-center justify-center p-4">
 
-  <div class="register-card">
+  <!-- الكارت: تم إضافة كلاس 'sm:-mt-10' (هامش علوي سلبي) لرفع الكارت للشاشات المتوسطة والكبيرة ليتناسب مع موقع حرف الـ M -->
+  <!-- وتمت إضافة كلاسات Glassmorphism من Tailwind -->
+  <div class="w-full max-w-sm sm:-mt-10 sm:translate-x-[400px] bg-white/8 backdrop-blur-md border border-white/10 rounded-2xl p-6 sm:p-8 transition-all duration-300 hover:shadow-xl">
 
-    <h2 class="title">Register</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="register()" class="space-y-4">
 
-    <form [formGroup]="registerForm" (ngSubmit)="register()">
-
-      <div class="mb-4">
-        <label>Name</label>
+      <div>
+        <label class="block mb-2 text-sm font-semibold text-gray-200">Name</label>
 
         <input
           type="text"
           formControlName="name"
           placeholder="Enter your name"
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+
         />
 
         @if(registerForm.get('name')?.touched && registerForm.get('name')?.invalid){
-          <small>Name is required</small>
+          <small class="block text-xs text-red-400 mt-1.5">Name is required</small>
         }
       </div>
 
-      <div class="mb-4">
-        <label>Email</label>
+      <!-- حقل الإيميل -->
+      <div>
+        <label class="block mb-2 text-sm font-semibold text-gray-200">Email</label>
 
         <input
           type="email"
           formControlName="email"
           placeholder="Enter your email"
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
         />
 
         @if(registerForm.get('email')?.touched && registerForm.get('email')?.invalid){
-          <small>Enter a valid email</small>
+          <small class="block text-xs text-red-400 mt-1.5">Enter a valid email</small>
         }
       </div>
 
-      <div class="mb-4">
-        <label>Password</label>
+      <!-- حقل كلمة المرور -->
+      <div>
+        <label class="block mb-2 text-sm font-semibold text-gray-200">Password</label>
 
         <input
           type="password"
           formControlName="password"
           placeholder="Enter your password"
+          class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
         />
 
         @if(registerForm.get('password')?.touched && registerForm.get('password')?.invalid){
-          <small>Password must be at least 6 characters</small>
+          <small class="block text-xs text-red-400 mt-1.5">Password must be at least 6 characters</small>
         }
       </div>
 
+      <!-- زر التسجيل: تم استخدام اللون الأخضر الداكن مثل الصورة المرفقة -->
       <button
         type="submit"
-        [disabled]="registerForm.invalid">
+        [disabled]="registerForm.invalid"
+        class="w-full mt-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition disabled:bg-gray-500 disabled:opacity-60 disabled:cursor-not-allowed">
         Register
       </button>
 
     </form>
 
-    <p>
+    <!-- الرابط السفلي -->
+    <p class="mt-6 text-center text-sm text-gray-300">
       Already have an account?
-      <a routerLink="/login">Login</a>
+      <a routerLink="/login" class="font-semibold text-green-500 hover:text-green-400 hover:underline transition">Login</a>
     </p>
 
   </div>

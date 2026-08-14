@@ -1,17 +1,13 @@
-// mongoose lib
 const mongoose = require('mongoose');
 
-// schema for oreders
 const orderSchema = new mongoose.Schema({
     
-    // to know the user for these oreders
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
     
-    // products
     items: [
         {
             productId: {
@@ -34,8 +30,17 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+
+    couponCode: {
+        type: String,
+        default: null
+    },
+
+    discountAmount: {
+        type: Number,
+        default: 0
+    },
     
-    // address of user
     Address: {
         type: String,
         required: true
@@ -47,8 +52,7 @@ const orderSchema = new mongoose.Schema({
         default: 'Pending' 
     }
 }, { 
-    timestamps: true // save time of updates 
+    timestamps: true
 });
 
-// to export to other files(controller)
 module.exports = mongoose.model('Order', orderSchema);

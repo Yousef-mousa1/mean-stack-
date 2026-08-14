@@ -1,64 +1,170 @@
-<section class="max-w-4xl mx-auto p-4">
-  <h2 class="text-2xl font-bold mb-4">إدارة الفئات</h2>
+<app-admin-nav></app-admin-nav>
 
-  <div class="border border-gray-200 rounded-xl p-4 mb-6 bg-white shadow-sm">
-    <h3 class="font-semibold mb-3">
-      {{ editingId ? 'تعديل الفئة' : 'فئة جديدة' }}
-    </h3>
+<div class="max-w-6xl mx-auto px-4 py-8 mt-8">
 
-    @if (errorMessage()) {
-      <p class="text-red-600 text-sm mb-2">{{ errorMessage() }}</p>
-    }
-    @if (successMessage()) {
-      <p class="text-green-600 text-sm mb-2">{{ successMessage() }}</p>
-    }
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">إدارة الفئات</h2>
 
-    <div class="grid grid-cols-2 gap-3">
-      <input [(ngModel)]="form.name" placeholder="اسم الفئة (مثال: Bakery)" class="border rounded-lg p-2" />
-      <input [(ngModel)]="form.slug" placeholder="Slug (مثال: bakery)" class="border rounded-lg p-2" />
-      <input [(ngModel)]="form.image" placeholder="رابط صورة (اختياري)" class="border rounded-lg p-2 col-span-2" />
-      <textarea [(ngModel)]="form.description" placeholder="وصف الفئة (اختياري)" class="border rounded-lg p-2 col-span-2" rows="2"></textarea>
-    </div>
+    <button
+      class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors self-start sm:self-auto"
+      (click)="openAddModal()">
+      + فئة جديدة
+    </button>
+  </div>
 
-    <div class="flex gap-2 mt-3">
-      <button (click)="submit()" class="px-4 py-2 rounded-lg text-white font-medium bg-blue-600 hover:bg-blue-700">
-        {{ editingId ? 'حفظ التعديل' : 'إضافة الفئة' }}
-      </button>
-      @if (editingId) {
-        <button (click)="cancelEdit()" class="px-4 py-2 rounded-lg text-gray-700 font-medium bg-gray-100 hover:bg-gray-200">
-          إلغاء
-        </button>
-      }
+  @if (errorMessage()) {
+    <p class="text-red-600 text-sm mb-3">{{ errorMessage() }}</p>
+  }
+  @if (successMessage()) {
+    <p class="text-emerald-600 text-sm mb-3">{{ successMessage() }}</p>
+  }
+
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left">
+
+        <thead class="bg-gray-900 text-white text-xs uppercase tracking-wide">
+          <tr>
+            <th class="px-6 py-3">الاسم</th>
+            <th class="px-6 py-3">Slug</th>
+            <th class="px-6 py-3">الوصف</th>
+            <th class="px-6 py-3 text-right">إجراءات</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-gray-100">
+
+          @if (loading()) {
+
+            <tr>
+              <td colspan="4" class="px-6 py-10 text-center text-gray-400">
+                جاري التحميل...
+              </td>
+            </tr>
+
+          } @else {
+
+            @for (category of categories(); track category._id) {
+
+              <tr class="hover:bg-gray-50 transition-colors">
+
+                <td class="px-6 py-4 font-medium text-gray-800">{{ category.name }}</td>
+
+                <td class="px-6 py-4 text-gray-500 font-mono text-xs">{{ category.slug }}</td>
+
+                <td class="px-6 py-4 text-gray-600 truncate max-w-xs">{{ category.description || '—' }}</td>
+
+                <td class="px-6 py-4">
+                  <div class="flex justify-end gap-2">
+
+                    <button
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors"
+                      (click)="openEditModal(category)">
+                      تعديل
+                    </button>
+
+                    <button
+                      class="px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition-colors"
+                      (click)="deleteCategory(category._id)">
+                      مسح
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <tr>
+                <td colspan="4" class="px-6 py-10 text-center text-gray-400">
+                  مفيش فئات دلوقتي
+                </td>
+              </tr>
+
+            }
+
+          }
+
+        </tbody>
+
+      </table>
     </div>
   </div>
 
-  @if (loading()) {
-    <p class="text-gray-500">جاري التحميل...</p>
-  } @else {
-    <table class="w-full border-collapse">
-      <thead>
-        <tr class="text-start border-b">
-          <th class="p-2 text-start">الاسم</th>
-          <th class="p-2 text-start">Slug</th>
-          <th class="p-2 text-start">الوصف</th>
-          <th class="p-2 text-start"></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (category of categories(); track category._id) {
-          <tr class="border-b">
-            <td class="p-2 font-semibold">{{ category.name }}</td>
-            <td class="p-2 text-gray-500">{{ category.slug }}</td>
-            <td class="p-2 text-gray-500 truncate max-w-xs">{{ category.description || '—' }}</td>
-            <td class="p-2 flex gap-3">
-              <button (click)="startEdit(category)" class="text-blue-600 hover:underline">تعديل</button>
-              <button (click)="deleteCategory(category._id)" class="text-red-500 hover:underline">مسح</button>
-            </td>
-          </tr>
-        } @empty {
-          <tr><td colspan="4" class="p-4 text-center text-gray-500">مفيش فئات دلوقتي</td></tr>
-        }
-      </tbody>
-    </table>
-  }
-</section>
+</div>
+
+
+<!-- Add / Edit Category Modal -->
+@if (isModalOpen) {
+
+  <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+
+      <h4 class="text-lg font-semibold text-gray-800 mb-4">
+        {{ editingId ? 'تعديل الفئة' : 'فئة جديدة' }}
+      </h4>
+
+      @if (errorMessage()) {
+        <p class="text-red-600 text-sm mb-3">{{ errorMessage() }}</p>
+      }
+
+      <div class="space-y-3">
+
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">اسم الفئة *</label>
+          <input
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+            [(ngModel)]="form.name"
+            placeholder="مثال: Bakery">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">Slug *</label>
+          <input
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+            [(ngModel)]="form.slug"
+            placeholder="مثال: bakery">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">رابط صورة (اختياري)</label>
+          <input
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+            [(ngModel)]="form.image"
+            placeholder="https://...">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-500 mb-1">وصف الفئة (اختياري)</label>
+          <textarea
+            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-800"
+            [(ngModel)]="form.description"
+            rows="3"
+            placeholder="وصف مختصر..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="flex justify-end gap-2 mt-6">
+
+        <button
+          class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+          (click)="closeModal()">
+          إلغاء
+        </button>
+
+        <button
+          class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 text-white hover:bg-gray-800 transition-colors"
+          (click)="submit()">
+          {{ editingId ? 'حفظ التعديل' : 'إضافة الفئة' }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

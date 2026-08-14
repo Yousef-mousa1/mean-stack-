@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CategoriesService } from '../../service/categories';
 import { Icategory } from '../../model/icategory';
+import { AdminNav } from '../admin-nav/admin-nav';
 
 @Component({
   selector: 'app-admin-categories',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminNav],
   templateUrl: './admin-categories.html',
   styleUrl: './admin-categories.css',
 })
@@ -18,6 +19,8 @@ export class AdminCategories implements OnInit {
 
   // لو null يبقى وضع "إضافة"، لو فيه id يبقى وضع "تعديل"
   editingId: string | null = null;
+
+  isModalOpen: boolean = false;
 
   form = {
     name: '',
@@ -50,6 +53,21 @@ export class AdminCategories implements OnInit {
     });
   }
 
+  openAddModal() {
+    this.resetForm();
+    this.isModalOpen = true;
+  }
+
+  openEditModal(category: Icategory) {
+    this.startEdit(category);
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+    this.resetForm();
+  }
+
   submit() {
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -63,7 +81,7 @@ export class AdminCategories implements OnInit {
       this.categoriesService.update(this.editingId, this.form).subscribe({
         next: () => {
           this.successMessage.set('اتحدثت الفئة بنجاح');
-          this.resetForm();
+          this.closeModal();
           this.fetchCategories();
         },
         error: (err) => {
@@ -74,7 +92,7 @@ export class AdminCategories implements OnInit {
       this.categoriesService.create(this.form).subscribe({
         next: () => {
           this.successMessage.set('اتضافت الفئة بنجاح');
-          this.resetForm();
+          this.closeModal();
           this.fetchCategories();
         },
         error: (err) => {
