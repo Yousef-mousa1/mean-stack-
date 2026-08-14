@@ -1,7 +1,6 @@
 // load models to check on products in DB
-const Wishlist = require('../models/wishlist');
+const Wishlist = require('../models/Wishlist');
 const Product = require('../models/Product');
-
 // add product to wishlist
 const addToWishlist = async (req, res) => {
     try {
