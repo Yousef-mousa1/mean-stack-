@@ -12,7 +12,6 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-
 const register = async (data) => {
 
   const existingUser = await User.findOne({
