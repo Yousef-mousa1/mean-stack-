@@ -5,14 +5,12 @@ require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
 
 const Product = require("../src/models/Product");
 const Category = require("../src/models/Category");
+const cloudinary = require("../src/config/cloudinary");
 
 // ---------- الإعدادات ----------
 
 const IMAGES_DIR = path.join(__dirname, "category-images");
 const RESET = process.argv.includes("--reset");
-// الصور هتتنسخ هنا وتتقرأ Static من Express (لازم تعمل express.static على الفولدر ده)
-const PUBLIC_IMAGES_DIR = path.join(__dirname, "..", "public", "images");
-const PUBLIC_IMAGES_URL_PREFIX = "/images";
 
 // ---------- تصنيف الكاتيجوري حسب اسم الملف ----------
 // الترتيب مهم: أول match بيكسب، فالأكتر تحديدًا لازم يكون فوق
@@ -175,27 +173,25 @@ function slugify(str) {
     .replace(/(^-|-$)/g, "");
 }
 
-// ---------- نسخ الصور لفولدر public/images محليًا ----------
+// ---------- رفع الصور على Cloudinary ----------
 
-function copyImagesLocally(files) {
+async function uploadImagesToCloudinary(files) {
   const results = new Map();
-
-  if (!fs.existsSync(PUBLIC_IMAGES_DIR)) {
-    fs.mkdirSync(PUBLIC_IMAGES_DIR, { recursive: true });
-  }
 
   for (const file of files) {
     const src = path.join(IMAGES_DIR, file);
-    const ext = path.extname(file);
-    const cleanName = slugify(path.parse(file).name) + ext.toLowerCase();
-    const dest = path.join(PUBLIC_IMAGES_DIR, cleanName);
+    const cleanName = slugify(path.parse(file).name);
 
     try {
-      fs.copyFileSync(src, dest);
-      results.set(file, `${PUBLIC_IMAGES_URL_PREFIX}/${cleanName}`);
-      console.log(`  ✓ ${file} -> ${cleanName}`);
+      const result = await cloudinary.uploader.upload(src, {
+        folder: "mousa-shop/products",
+        public_id: cleanName,
+        overwrite: true,
+      });
+      results.set(file, result.secure_url);
+      console.log(`  ✓ ${file} -> ${result.secure_url}`);
     } catch (err) {
-      console.error(`  ✗ ${file} فشل النسخ: ${err.message}`);
+      console.error(`  ✗ ${file} فشل الرفع: ${err.message}`);
     }
   }
 
@@ -207,6 +203,13 @@ function copyImagesLocally(files) {
 async function main() {
   if (!process.env.MONGO_URI) {
     throw new Error("MONGO_URI مش موجود في .env");
+  }
+  if (
+    !process.env.CLOUDINARY_CLOUD_NAME ||
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET
+  ) {
+    throw new Error("إعدادات Cloudinary مش موجودة في .env");
   }
 
   console.log("بنتصل بـ MongoDB...");
@@ -228,9 +231,9 @@ async function main() {
   }
   console.log(`لاقيت ${files.length} صورة.`);
 
-  // 1) نسخ الصور محليًا لفولدر public/images
-  console.log("\nبننسخ الصور لفولدر public/images...");
-  const imageUrls = copyImagesLocally(files);
+  // 1) رفع الصور على Cloudinary
+  console.log("\nبنرفع الصور على Cloudinary...");
+  const imageUrls = await uploadImagesToCloudinary(files);
 
   // 2) تجهيز الكاتيجوريز المطلوبة
   const usedCategories = new Map(); // slug -> {name, slug}
@@ -283,7 +286,7 @@ async function main() {
   for (const draft of productDrafts) {
     const imageUrl = imageUrls.get(draft.file);
     if (!imageUrl) {
-      console.warn(`  ⚠ متخطي ${draft.file} (فشل نسخ الصورة)`);
+      console.warn(`  ⚠ متخطي ${draft.file} (فشل رفع الصورة)`);
       continue;
     }
 

@@ -80,16 +80,51 @@ const createOrder = async (req, res) => {
 
         const finalTotal = totalPrice - discountAmount;
 
+        // ===== Stock check & decrement (ATOMIC) =====
+        // بنتأكد إن الكمية متوفرة وبننقصها في نفس الاستعلام
+        // عشان نمنع oversell لو اتنين طلبوا نفس المنتج في نفس اللحظة
+        const stockUpdates = [];
+
+        for (const item of orderItems) {
+            const updatedProduct = await Product.findOneAndUpdate(
+                { _id: item.productId, stock: { $gte: item.quantity } },
+                { $inc: { stock: -item.quantity } },
+                { new: true }
+            );
+
+            if (!updatedProduct) {
+                // فشل النقص معناه الكمية المتاحة أقل من المطلوب (أو المنتج اتمسح)
+                // لازم نرجّع اللي اتنقص قبل كده عشان الداتا تفضل صح
+                await rollbackStock(stockUpdates);
+
+                const productDoc = await Product.findById(item.productId);
+                const availableStock = productDoc ? productDoc.stock : 0;
+
+                return res.status(400).json({
+                    message: `Not enough stock for "${productDoc ? productDoc.name : 'product'}". Available: ${availableStock}, requested: ${item.quantity}`
+                });
+            }
+
+            stockUpdates.push({ productId: item.productId, quantity: item.quantity });
+        }
+
         // add order in DB
-        const order = await Order.create({
-            userId,
-            items: orderItems,
-            totalPrice: finalTotal,
-            couponCode: appliedCouponCode,
-            discountAmount,
-            Address,
-            status: 'Pending'
-        });
+        let order;
+        try {
+            order = await Order.create({
+                userId,
+                items: orderItems,
+                totalPrice: finalTotal,
+                couponCode: appliedCouponCode,
+                discountAmount,
+                Address,
+                status: 'Pending'
+            });
+        } catch (orderError) {
+            // لو فشل إنشاء الأوردر، نرجّع الستوك اللي اتنقص
+            await rollbackStock(stockUpdates);
+            throw orderError;
+        }
 
         // لو الكوبون اتطبق فعلاً، زوّد عداد الاستخدام دلوقتي بس (بعد نجاح الأوردر)
         if (coupon) {
@@ -108,6 +143,15 @@ const createOrder = async (req, res) => {
         return res.status(500).json({ message: 'Error in server', error: error.message });
     }
 };
+
+// helper: يرجّع الستوك لو حصل فشل في نص العملية
+async function rollbackStock(stockUpdates) {
+    for (const update of stockUpdates) {
+        await Product.findByIdAndUpdate(update.productId, {
+            $inc: { stock: update.quantity }
+        });
+    }
+}
 
 const getUserOrders = async (req, res) => {
     try {
@@ -164,6 +208,15 @@ const updateOrderStatus = async (req, res) => {
 
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // لو الأدمن ألغى الأوردر، نرجّع الستوك للمنتجات
+        if (status === 'Cancelled') {
+            for (const item of order.items) {
+                await Product.findByIdAndUpdate(item.productId, {
+                    $inc: { stock: item.quantity }
+                });
+            }
         }
 
         return res.status(200).json({ message: 'Updated done on order', order });
