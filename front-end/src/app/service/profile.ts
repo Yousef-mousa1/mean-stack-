@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -15,7 +16,7 @@ export interface IProfile {
 })
 export class ProfileService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api/users/profile';
+  private baseUrl = environment.apiUrl + '/users/profile';
 
   getProfile() {
     return this.http.get<{ success: boolean; user: IProfile }>(this.baseUrl);

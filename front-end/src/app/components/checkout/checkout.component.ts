@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -47,7 +48,7 @@ export class Checkout implements OnInit {
   couponError = signal('');
   appliedCoupon = signal<{ code: string; discountAmount: number } | null>(null);
 
-  private readonly backendUrl = 'http://localhost:3000';
+  private readonly backendUrl = environment.backendUrl;
 
   totalPrice = computed(() => {
     const c = this.cart();

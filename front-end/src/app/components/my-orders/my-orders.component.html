@@ -70,6 +70,23 @@
           </p>
         </div>
 
+        <!-- Cancel button: بيظهر بس لو الأوردر لسه Pending -->
+        @if (order.status === 'Pending') {
+          <div class="mt-3 pt-3 border-t border-gray-100 flex justify-end">
+            <button
+              (click)="cancelOrder(order._id)"
+              [disabled]="cancellingOrderId() === order._id"
+              class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-red-50 text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              @if (cancellingOrderId() === order._id) {
+                جاري الإلغاء...
+              } @else {
+                إلغاء الأوردر
+              }
+            </button>
+          </div>
+        }
+
       </div>
     }
   </div>

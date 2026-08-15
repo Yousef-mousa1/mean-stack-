@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +8,7 @@ import { Icoupon, IcouponsResponse, IapplyCouponResponse } from '../model/icoupo
   providedIn: 'root',
 })
 export class CouponsService {
-  private readonly API_URL = 'http://localhost:3000/api/coupons';
+  private readonly API_URL = environment.apiUrl + '/coupons';
 
   constructor(private http: HttpClient) {}
 

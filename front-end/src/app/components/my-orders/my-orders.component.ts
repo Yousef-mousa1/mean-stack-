@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { OrdersService } from '../../service/Orders.service';
@@ -14,7 +15,10 @@ export class MyOrdersComponent implements OnInit {
   loading = signal(false);
   errorMessage = signal('');
 
-  private readonly backendUrl = 'http://localhost:3000';
+  // بيتخزن فيه الـ id بتاع الأوردر اللي بيتلغي دلوقتي، عشان نعطل زراره بس هو
+  cancellingOrderId = signal<string | null>(null);
+
+  private readonly backendUrl = environment.backendUrl;
 
   constructor(private ordersService: OrdersService) {}
 
@@ -39,6 +43,30 @@ export class MyOrdersComponent implements OnInit {
           this.errorMessage.set('حصلت مشكلة في جلب الأوردرات');
         }
         this.loading.set(false);
+      },
+    });
+  }
+
+  // بيلغي الأوردر (بس لو لسه Pending، الباك اند بيتأكد برضو)
+  cancelOrder(orderId: string) {
+    const confirmed = confirm('متأكد إنك عايز تلغي الأوردر ده؟');
+    if (!confirmed) return;
+
+    this.cancellingOrderId.set(orderId);
+
+    this.ordersService.cancelOrder(orderId).subscribe({
+      next: (res) => {
+        // نحدث حالة الأوردر ده بس في الـ list المحلية، من غير ما نعمل fetch جديد
+        this.orders.update((list) =>
+          list.map((o) => (o._id === orderId ? { ...o, status: 'Cancelled' } : o))
+        );
+        this.cancellingOrderId.set(null);
+      },
+      error: (err) => {
+        console.error('Cancel order error:', err);
+        const msg = err?.error?.message || 'حصلت مشكلة في إلغاء الأوردر';
+        alert(msg);
+        this.cancellingOrderId.set(null);
       },
     });
   }

@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Iorder } from '../model/iorder';
@@ -7,7 +8,7 @@ import { Iorder } from '../model/iorder';
 })
 export class OrdersService {
   private http = inject(HttpClient);
-  private baseUrl = 'http://localhost:3000/api/orders';
+  private baseUrl = environment.apiUrl + '/orders';
 
   // بيرجّع كل أوردرات اليوزر الحالي (محمي بالتوكن، الباك اند بياخد الـ userId من التوكن نفسه)
   getMyOrders() {
@@ -19,6 +20,14 @@ export class OrdersService {
     const body: any = { Address: address };
     if (couponCode) body.couponCode = couponCode;
     return this.http.post<{ message: string; order: Iorder }>(this.baseUrl, body);
+  }
+
+  // بيلغي أوردر بتاع الكستمر نفسه (بشرط يكون لسه Pending)
+  cancelOrder(orderId: string) {
+    return this.http.put<{ message: string; order: Iorder }>(
+      `${this.baseUrl}/my-orders/${orderId}/cancel`,
+      {}
+    );
   }
 
   // بيرجّع أوردرات يوزر معيّن (Admin only)

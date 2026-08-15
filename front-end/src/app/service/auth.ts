@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { inject, Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -16,7 +17,7 @@ export class Auth {
   private http = inject(HttpClient);
   private router = inject(Router);
 
-  private baseUrl = 'http://localhost:3000/api/auth';
+  private baseUrl = environment.apiUrl + '/auth';
 
   // بنجيب اليوزر المخزّن (لو موجود) وقت ما الـ service يتعمله instantiate أول مرة
   // كده لو عمل refresh للصفحة، حالة تسجيل الدخول متتفقدش

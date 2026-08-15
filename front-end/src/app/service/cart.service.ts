@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class CartService {
   // to connect to the backend API for cart 
-  private apiUrl = 'http://localhost:3000/api/cart';
+  private apiUrl = environment.apiUrl + '/cart';
 
   constructor(private http: HttpClient) {}
 

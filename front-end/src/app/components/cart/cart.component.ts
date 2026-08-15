@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -37,7 +38,7 @@ export class CartComponent implements OnInit {
   updatingProductId = signal<string | null>(null);
 
   // نفس الـ backend URL المستخدم في products.ts عشان الصور النسبية تتحول لرابط كامل
-  private readonly backendUrl = 'http://localhost:3000';
+  private readonly backendUrl = environment.backendUrl;
 
   totalPrice = computed(() => {
     const c = this.cart();

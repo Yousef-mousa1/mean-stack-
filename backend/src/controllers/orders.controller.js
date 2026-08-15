@@ -226,6 +226,47 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+// PUT /my-orders/:orderId/cancel  (Customer only — يلغي أوردره هو بس)
+const cancelMyOrder = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { orderId } = req.params;
+
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // يتأكد إن الأوردر ده بتاع نفس اليوزر
+        if (order.userId.toString() !== userId.toString()) {
+            return res.status(403).json({ message: 'You are not allowed to cancel this order' });
+        }
+
+        // يسمح بالإلغاء بس لو لسه Pending
+        if (order.status !== 'Pending') {
+            return res.status(400).json({
+                message: `Cannot cancel an order with status "${order.status}"`
+            });
+        }
+
+        order.status = 'Cancelled';
+        await order.save();
+
+        // رجّع الستوك للمنتجات
+        for (const item of order.items) {
+            await Product.findByIdAndUpdate(item.productId, {
+                $inc: { stock: item.quantity }
+            });
+        }
+
+        return res.status(200).json({ message: 'Order cancelled', order });
+    }
+    catch (error) {
+        return res.status(500).json({ message: 'Error in server', error: error.message });
+    }
+};
+
 const deleteOrder = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -248,5 +289,6 @@ module.exports = {
     getAllOrders,
     getOrdersByUserId,
     updateOrderStatus,
+    cancelMyOrder,
     deleteOrder
 };

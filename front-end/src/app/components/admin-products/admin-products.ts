@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +32,7 @@ export class AdminProducts implements OnInit {
 
   private searchTimeout: any;
 
-  private readonly backendUrl = 'http://localhost:3000';
+  private readonly backendUrl = environment.backendUrl;
 
   constructor(
     private ProductsService: ProductsService,

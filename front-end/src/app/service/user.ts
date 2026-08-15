@@ -1,3 +1,4 @@
+import { environment } from '../../environments/environment';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -8,7 +9,7 @@ export class User {
 
   private http = inject(HttpClient);
 
-  private baseUrl = 'http://localhost:3000/api/users';
+  private baseUrl = environment.apiUrl + '/users';
 
   getUsers() {
     return this.http.get(this.baseUrl);

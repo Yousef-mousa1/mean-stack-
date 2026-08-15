@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +20,7 @@ export class Products implements OnInit {
   loading = signal(false);
   errorMessage = signal('');
 
-  private readonly backendUrl = 'http://localhost:3000';
+  private readonly backendUrl = environment.backendUrl;
 
   constructor(
     private productsService: ProductsService,
