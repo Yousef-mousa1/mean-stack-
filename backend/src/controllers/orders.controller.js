@@ -1,117 +1,152 @@
+const mongoose = require('mongoose');
 const Order = require('../models/Order');
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
 
+// كلاس بسيط لتمرير status code مع رسالة الخطأ من جوه الـ transaction للـ catch بره
+class AppError extends Error {
+    constructor(statusCode, message) {
+        super(message);
+        this.statusCode = statusCode;
+    }
+}
+
 //  Create Order
 const createOrder = async (req, res) => {
+    const session = await mongoose.startSession();
+
     try {
-        const userId = req.user._id;
-        const { Address, couponCode } = req.body;
+        let createdOrder;
 
-        const cart = await Cart.findOne({ userId }).populate('items.productId');
-        if (!cart || cart.items.length === 0) {
-            return res.status(400).json({ message: 'Empty Cart' });
-        }
+        // ===== كل العمليات هنا بتتنفذ كوحدة واحدة (all-or-nothing) =====
+        // لو أي خطوة فشلت (حتى لو السيرفر وقع فجأة)، MongoDB بترجع كل حاجة زي ما كانت
+        await session.withTransaction(async () => {
+            const userId = req.user._id;
+            const { Address, couponCode } = req.body;
 
-        let totalPrice = 0;
-        const orderItems = [];
+            const cart = await Cart.findOne({ userId })
+                .populate('items.productId')
+                .session(session);
 
-        for (const item of cart.items) {
-            const product = item.productId;
-            if (!product) {
-                return res.status(404).json({ message: 'Product is unavailable' });
+            if (!cart || cart.items.length === 0) {
+                throw new AppError(400, 'Empty Cart');
             }
 
-            const itemPrice = product.price;
-            const quantity = item.quantity;
+            let totalPrice = 0;
+            const orderItems = [];
 
-            totalPrice += itemPrice * quantity;
+            for (const item of cart.items) {
+                const product = item.productId;
+                if (!product) {
+                    throw new AppError(404, 'Product is unavailable');
+                }
 
-            orderItems.push({
-                productId: product._id,
-                quantity: quantity,
-                price: itemPrice
-            });
-        }
+                const itemPrice = product.price;
+                const quantity = item.quantity;
 
-        // ===== Coupon handling (لو المستخدم بعت كود) =====
-        let discountAmount = 0;
-        let appliedCouponCode = null;
-        let coupon = null;
+                totalPrice += itemPrice * quantity;
 
-        if (couponCode) {
-            coupon = await Coupon.findOne({ code: couponCode.toUpperCase() });
-
-            if (!coupon) {
-                return res.status(404).json({ message: 'Invalid coupon code' });
-            }
-
-            if (!coupon.isActive) {
-                return res.status(400).json({ message: 'This coupon is no longer active' });
-            }
-
-            if (coupon.expiryDate < new Date()) {
-                return res.status(400).json({ message: 'This coupon has expired' });
-            }
-
-            if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
-                return res.status(400).json({ message: 'This coupon has reached its usage limit' });
-            }
-
-            if (totalPrice < coupon.minCartValue) {
-                return res.status(400).json({
-                    message: `Cart total must be at least ${coupon.minCartValue} to use this coupon`
+                orderItems.push({
+                    productId: product._id,
+                    quantity: quantity,
+                    price: itemPrice
                 });
             }
 
-            if (coupon.discountType === 'percentage') {
-                discountAmount = (totalPrice * coupon.discountValue) / 100;
-            } else {
-                discountAmount = coupon.discountValue;
+            // ===== Coupon handling (لو المستخدم بعت كود) =====
+            let discountAmount = 0;
+            let appliedCouponCode = null;
+            let coupon = null;
+
+            if (couponCode) {
+                coupon = await Coupon.findOne({ code: couponCode.toUpperCase() }).session(session);
+
+                if (!coupon) {
+                    throw new AppError(404, 'Invalid coupon code');
+                }
+
+                if (!coupon.isActive) {
+                    throw new AppError(400, 'This coupon is no longer active');
+                }
+
+                if (coupon.expiryDate < new Date()) {
+                    throw new AppError(400, 'This coupon has expired');
+                }
+
+                if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+                    throw new AppError(400, 'This coupon has reached its usage limit');
+                }
+
+                if (totalPrice < coupon.minCartValue) {
+                    throw new AppError(400, `Cart total must be at least ${coupon.minCartValue} to use this coupon`);
+                }
+
+                if (coupon.discountType === 'percentage') {
+                    discountAmount = (totalPrice * coupon.discountValue) / 100;
+                } else {
+                    discountAmount = coupon.discountValue;
+                }
+
+                if (discountAmount > totalPrice) {
+                    discountAmount = totalPrice;
+                }
+
+                appliedCouponCode = coupon.code;
             }
 
-            if (discountAmount > totalPrice) {
-                discountAmount = totalPrice;
+            const finalTotal = totalPrice - discountAmount;
+
+            // ===== Stock check & decrement (ATOMIC + داخل نفس الـ transaction) =====
+            for (const item of orderItems) {
+                const updatedProduct = await Product.findOneAndUpdate(
+                    { _id: item.productId, stock: { $gte: item.quantity } },
+                    { $inc: { stock: -item.quantity } },
+                    { new: true, session }
+                );
+
+                if (!updatedProduct) {
+                    const productDoc = await Product.findById(item.productId).session(session);
+                    const availableStock = productDoc ? productDoc.stock : 0;
+
+                    throw new AppError(
+                        400,
+                        `Not enough stock for "${productDoc ? productDoc.name : 'product'}". Available: ${availableStock}, requested: ${item.quantity}`
+                    );
+                }
+
+                // لو الستوك بقى صفر، خلي المنتج غير متاح تلقائيًا
+                if (updatedProduct.stock === 0 && updatedProduct.isAvailable) {
+                    updatedProduct.isAvailable = false;
+                    await updatedProduct.save({ session });
+                }
             }
 
-            appliedCouponCode = coupon.code;
-        }
+            // ===== Coupon usage (ATOMIC + داخل نفس الـ transaction) =====
+            // بنستخدم findOneAndUpdate بشرط usedCount < usageLimit في نفس الاستعلام
+            // عشان نمنع اتنين كستمر يستخدموا آخر استخدام متاح في نفس اللحظة
+            if (coupon) {
+                const couponUpdateFilter = {
+                    _id: coupon._id,
+                    $or: [
+                        { usageLimit: null },
+                        { $expr: { $lt: ['$usedCount', '$usageLimit'] } }
+                    ]
+                };
 
-        const finalTotal = totalPrice - discountAmount;
+                const updatedCoupon = await Coupon.findOneAndUpdate(
+                    couponUpdateFilter,
+                    { $inc: { usedCount: 1 } },
+                    { new: true, session }
+                );
 
-        // ===== Stock check & decrement (ATOMIC) =====
-        // بنتأكد إن الكمية متوفرة وبننقصها في نفس الاستعلام
-        // عشان نمنع oversell لو اتنين طلبوا نفس المنتج في نفس اللحظة
-        const stockUpdates = [];
-
-        for (const item of orderItems) {
-            const updatedProduct = await Product.findOneAndUpdate(
-                { _id: item.productId, stock: { $gte: item.quantity } },
-                { $inc: { stock: -item.quantity } },
-                { new: true }
-            );
-
-            if (!updatedProduct) {
-                // فشل النقص معناه الكمية المتاحة أقل من المطلوب (أو المنتج اتمسح)
-                // لازم نرجّع اللي اتنقص قبل كده عشان الداتا تفضل صح
-                await rollbackStock(stockUpdates);
-
-                const productDoc = await Product.findById(item.productId);
-                const availableStock = productDoc ? productDoc.stock : 0;
-
-                return res.status(400).json({
-                    message: `Not enough stock for "${productDoc ? productDoc.name : 'product'}". Available: ${availableStock}, requested: ${item.quantity}`
-                });
+                if (!updatedCoupon) {
+                    throw new AppError(400, 'This coupon has just reached its usage limit, please try without it');
+                }
             }
 
-            stockUpdates.push({ productId: item.productId, quantity: item.quantity });
-        }
-
-        // add order in DB
-        let order;
-        try {
-            order = await Order.create({
+            // add order in DB
+            const orderDocs = await Order.create([{
                 userId,
                 items: orderItems,
                 totalPrice: finalTotal,
@@ -119,39 +154,28 @@ const createOrder = async (req, res) => {
                 discountAmount,
                 Address,
                 status: 'Pending'
-            });
-        } catch (orderError) {
-            // لو فشل إنشاء الأوردر، نرجّع الستوك اللي اتنقص
-            await rollbackStock(stockUpdates);
-            throw orderError;
-        }
+            }], { session });
 
-        // لو الكوبون اتطبق فعلاً، زوّد عداد الاستخدام دلوقتي بس (بعد نجاح الأوردر)
-        if (coupon) {
-            coupon.usedCount += 1;
-            await coupon.save();
-        }
+            createdOrder = orderDocs[0];
 
-        // delete cart
-        cart.items = [];
-        await cart.save();
+            // delete cart
+            cart.items = [];
+            await cart.save({ session });
+        });
 
-        return res.status(201).json({ message: 'Order is done', order });
-
+        return res.status(201).json({ message: 'Order is done', order: createdOrder });
     }
     catch (error) {
+        // لو الخطأ من نوعنا الجوّاني (AppError)، ارجع الـ status code بتاعه
+        if (error instanceof AppError) {
+            return res.status(error.statusCode).json({ message: error.message });
+        }
         return res.status(500).json({ message: 'Error in server', error: error.message });
     }
-};
-
-// helper: يرجّع الستوك لو حصل فشل في نص العملية
-async function rollbackStock(stockUpdates) {
-    for (const update of stockUpdates) {
-        await Product.findByIdAndUpdate(update.productId, {
-            $inc: { stock: update.quantity }
-        });
+    finally {
+        session.endSession();
     }
-}
+};
 
 const getUserOrders = async (req, res) => {
     try {
@@ -190,6 +214,20 @@ const getOrdersByUserId = async (req, res) => {
     }
 };
 
+// helper: يرجّع الستوك لكل عناصر الأوردر، وياخد إعادة تفعيل isAvailable في الاعتبار
+async function restoreStockForOrder(order) {
+    for (const item of order.items) {
+        const product = await Product.findById(item.productId);
+        if (!product) continue;
+
+        product.stock += item.quantity;
+        if (product.stock > 0 && !product.isAvailable) {
+            product.isAvailable = true;
+        }
+        await product.save();
+    }
+}
+
 const updateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
@@ -200,26 +238,22 @@ const updateOrderStatus = async (req, res) => {
             return res.status(400).json({ message: 'unavailabe statues' });
         }
 
-        const order = await Order.findByIdAndUpdate(
-            orderId,
-            { status },
-            { new: true }
-        );
-
-        if (!order) {
+        const existingOrder = await Order.findById(orderId);
+        if (!existingOrder) {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        // لو الأدمن ألغى الأوردر، نرجّع الستوك للمنتجات
-        if (status === 'Cancelled') {
-            for (const item of order.items) {
-                await Product.findByIdAndUpdate(item.productId, {
-                    $inc: { stock: item.quantity }
-                });
-            }
+        const wasAlreadyCancelled = existingOrder.status === 'Cancelled';
+
+        existingOrder.status = status;
+        await existingOrder.save();
+
+        // لو الأدمن ألغى الأوردر (ومكنش ملغي قبل كده)، نرجّع الستوك للمنتجات
+        if (status === 'Cancelled' && !wasAlreadyCancelled) {
+            await restoreStockForOrder(existingOrder);
         }
 
-        return res.status(200).json({ message: 'Updated done on order', order });
+        return res.status(200).json({ message: 'Updated done on order', order: existingOrder });
     }
     catch (error) {
         return res.status(500).json({ message: 'Error in server', error: error.message });
@@ -253,12 +287,8 @@ const cancelMyOrder = async (req, res) => {
         order.status = 'Cancelled';
         await order.save();
 
-        // رجّع الستوك للمنتجات
-        for (const item of order.items) {
-            await Product.findByIdAndUpdate(item.productId, {
-                $inc: { stock: item.quantity }
-            });
-        }
+        // رجّع الستوك للمنتجات (وأعد تفعيل isAvailable لو كان اتقفل بسبب نفاد الستوك)
+        await restoreStockForOrder(order);
 
         return res.status(200).json({ message: 'Order cancelled', order });
     }
