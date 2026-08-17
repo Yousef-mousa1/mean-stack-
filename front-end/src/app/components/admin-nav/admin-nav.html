@@ -44,21 +44,99 @@
         </nav>
       </div>
 
+      <!-- زرار الرجوع + Hello + Logout: بيظهر كامل في الديسكتوب، ويختفي جزء منه في الموبايل -->
       <div class="flex items-center gap-3 text-sm">
-        <a routerLink="/" class="text-gray-300 hover:text-white transition-colors">
-          الرجوع للموقع
+        <a routerLink="/" class="hidden sm:inline text-gray-300 hover:text-white transition-colors">
+          Back to site
         </a>
-        <span class="text-gray-300">
+        <span class="hidden lg:inline text-gray-300 truncate max-w-[140px]">
           Hello, {{ auth.currentUser()?.name }}
         </span>
         <button
           (click)="logout()"
-          class="px-3 py-1.5 rounded-lg text-red-300 border border-red-400 hover:bg-red-500 hover:text-white transition-colors"
+          class="hidden sm:inline-block px-3 py-1.5 rounded-lg text-red-300 border border-red-400 hover:bg-red-500 hover:text-white transition-colors"
         >
           Logout
+        </button>
+
+        <!-- زرار الـ Hamburger: بيظهر بس في الموبايل/التابلت -->
+        <button
+          title="menu"
+          (click)="toggleMenu()"
+          class="md:hidden p-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            @if (!isMenuOpen()) {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            }
+          </svg>
         </button>
       </div>
 
     </div>
+
+    <!-- منيو الموبايل: بيظهر بس لما isMenuOpen تبقى true -->
+    @if (isMenuOpen()) {
+      <div class="md:hidden pb-4 pt-2 flex flex-col gap-1 text-sm border-t border-slate-700">
+        <a
+          routerLink="/admin-dashboard"
+          routerLinkActive="bg-slate-700"
+          (click)="closeMenu()"
+          class="px-3 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          Users
+        </a>
+        <a
+          routerLink="/admin/categories"
+          routerLinkActive="bg-slate-700"
+          (click)="closeMenu()"
+          class="px-3 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          Categories
+        </a>
+        <a
+          routerLink="/admin/products"
+          routerLinkActive="bg-slate-700"
+          (click)="closeMenu()"
+          class="px-3 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          Products
+        </a>
+        <a
+          routerLink="/admin/orders"
+          routerLinkActive="bg-slate-700"
+          (click)="closeMenu()"
+          class="px-3 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          Orders
+        </a>
+        <a
+          routerLink="/admin/coupons"
+          routerLinkActive="bg-slate-700"
+          (click)="closeMenu()"
+          class="px-3 py-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          Coupons
+        </a>
+
+        <div class="flex items-center justify-between px-3 pt-3 mt-2 border-t border-slate-700">
+          <span class="text-gray-300 text-xs">
+            Hello, {{ auth.currentUser()?.name }}
+          </span>
+          <button
+            (click)="logout()"
+            class="px-3 py-1.5 rounded-lg text-red-300 border border-red-400 hover:bg-red-500 hover:text-white transition-colors text-xs"
+          >
+            Logout
+          </button>
+        </div>
+
+        <a routerLink="/" (click)="closeMenu()" class="px-3 pt-2 text-gray-300 hover:text-white transition-colors text-xs">
+          Back to site
+        </a>
+      </div>
+    }
   </div>
 </header>
