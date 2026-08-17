@@ -2,6 +2,7 @@ import { environment } from '../../../environments/environment';
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../../service/products';
 import { CategoriesService } from '../../service/categories';
 import { CartService } from '../../service/cart.service';
@@ -11,7 +12,7 @@ import { ToastService } from '../../service/toast';
 
 @Component({
   selector: 'app-products',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './products.html',
   styleUrl: './products.css',
 })
@@ -29,7 +30,8 @@ export class Products implements OnInit {
     private cartService: CartService,
     private route: ActivatedRoute,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private translate: TranslateService
   ) {}
   searchTerm: string | null = null;
 
@@ -81,15 +83,13 @@ export class Products implements OnInit {
         if (result.success) {
           this.products.set(result.data);
         } else {
-          this.errorMessage.set('حصلت مشكلة في جلب المنتجات');
+          this.errorMessage.set(this.translate.instant('product.fetchError'));
         }
         this.loading.set(false);
       },
       error: (err) => {
         console.error('Fetch error:', err);
-        this.errorMessage.set(
-          'مقدرناش نوصل للسيرفر. تأكد إن الباك إند شغال على http://localhost:3000'
-        );
+        this.errorMessage.set(this.translate.instant('product.serverError'));
         this.loading.set(false);
       },
     });
@@ -99,14 +99,16 @@ export class Products implements OnInit {
 
     this.cartService.addToCart(product._id, 1).subscribe({
       next: () => {
-        this.toastService.show(`تم إضافة ${product.name} للسلة`);
+        // اسم المنتج بيفضل زي ما هو (بيانات من الداتابيز)، بس النص حوليه بيتترجم
+        const addedMsg = this.translate.instant('product.addedToCart', { name: product.name });
+        this.toastService.show(addedMsg);
       },
       error: (err) => {
         console.error('Add to cart error:', err);
         if (err.status === 401) {
-          this.errorMessage.set('لازم تسجّل الدخول الأول عشان تضيف للسلة');
+          this.errorMessage.set(this.translate.instant('product.mustLogin'));
         } else {
-          this.errorMessage.set('حصلت مشكلة في إضافة المنتج للسلة');
+          this.errorMessage.set(this.translate.instant('product.addToCartError'));
         }
       },
     });

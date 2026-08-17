@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "categories": "الفئات",
+    "cart": "السلة",
+    "wishlist": "المفضلة",
+    "checkout": "الدفع",
+    "myOrders": "أوردراتي",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "hello": "أهلاً"
+  },
+  "product": {
+    "addToCart": "أضف إلى السلة",
+    "outOfStock": "غير متوفر",
+    "available": "متاح",
+    "price": "السعر",
+    "stock": "المخزون",
+    "noProducts": "مفيش منتجات دلوقتي.",
+    "fetchError": "حصلت مشكلة في جلب المنتجات",
+    "serverError": "مقدرناش نوصل للسيرفر. تأكد إن الباك إند شغال.",
+    "addedToCart": "تم إضافة {{ name }} للسلة",
+    "mustLogin": "لازم تسجّل الدخول الأول عشان تضيف للسلة",
+    "addToCartError": "حصلت مشكلة في إضافة المنتج للسلة"
+  },
+  "orders": {
+    "title": "أوردراتي",
+    "empty": "لسه معملتش أي أوردر.",
+    "cancel": "إلغاء الأوردر",
+    "cancelling": "جاري الإلغاء...",
+    "status": {
+      "pending": "قيد الانتظار",
+      "processing": "بيتجهّز",
+      "delivered": "وصل",
+      "cancelled": "اتلغى"
+    }
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث...",
+    "currency": "جنيه"
+  }
+}

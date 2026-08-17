@@ -4,13 +4,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 import { WishlistService } from '../../service/wishlist';
 import { Auth } from '../../service/auth';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, TranslateModule, LanguageSwitcherComponent],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })

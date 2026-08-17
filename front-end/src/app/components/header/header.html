@@ -15,8 +15,9 @@
         @if (showSearch()) {
           <div class="hidden md:flex flex-1 max-w-xl">
             <input
+            title="Search"
               type="text"
-              placeholder="Search..."
+              [placeholder]="'common.search' | translate"
               [(ngModel)]="searchTerm"
               (keyup.enter)="onSearch()"
               class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"
@@ -27,7 +28,7 @@
         <div class="flex items-center gap-3">
 
           <a routerLink="/" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
-            Home
+            {{ 'nav.home' | translate }}
           </a>
 
           <a routerLink="/wishlist" class="relative p-2 text-gray-700 hover:text-emerald-600 transition-colors">
@@ -53,23 +54,26 @@
           </a>
 
           <a routerLink="/checkout" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
-            Checkout
+            {{ 'nav.checkout' | translate }}
           </a>
 
           <a routerLink="/my-orders" class="hidden md:inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-emerald-600 transition-colors">
-            My Orders
+            {{ 'nav.myOrders' | translate }}
           </a>
+
+          <!-- زرار تبديل اللغة، بيظهر في الديسكتوب دايمًا -->
+          <app-language-switcher class="hidden md:block"></app-language-switcher>
 
           @if (auth.isLoggedIn()) {
             <div class="hidden md:flex items-center gap-2">
               <span class="text-sm font-medium text-gray-700">
-                Hello, {{ auth.currentUser()?.name }}
+                {{ 'nav.hello' | translate }}, {{ auth.currentUser()?.name }}
               </span>
               <button
                 (click)="logout()"
                 class="inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-red-600 border border-red-500 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-300"
               >
-                Logout
+                {{ 'nav.logout' | translate }}
               </button>
             </div>
           } @else {
@@ -77,14 +81,14 @@
               routerLink="/login"
               class="hidden md:inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300"
             >
-              Login
+              {{ 'nav.login' | translate }}
             </a>
 
             <a
               routerLink="/register"
               class="hidden md:inline-flex items-center justify-center px-4 py-1.5 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all duration-300"
             >
-              Register
+              {{ 'nav.register' | translate }}
             </a>
           }
 
@@ -101,35 +105,41 @@
         <div class="md:hidden pb-4 pt-2 flex flex-col gap-3 text-sm font-medium border-t border-gray-100 bg-white">
           @if (showSearch()) {
             <input
+            title="t"
               type="text"
-              placeholder="Search..."
+              [placeholder]="'common.search' | translate"
               [(ngModel)]="searchTerm"
               (keyup.enter)="onSearch()"
               class="w-full border border-gray-300 rounded-full px-4 py-2 text-sm my-1"
             />
           }
-          <a routerLink="/" class="px-2 py-1 hover:text-emerald-600">Home</a>
-          <a routerLink="/products" class="px-2 py-1 hover:text-emerald-600">Products</a>
-          <a routerLink="/wishlist" class="px-2 py-1 hover:text-emerald-600">Wishlist</a>
-          <a routerLink="/checkout" class="px-2 py-1 hover:text-emerald-600">Checkout</a>
-          <a routerLink="/my-orders" class="px-2 py-1 hover:text-emerald-600">My Orders</a>
+          <a routerLink="/" class="px-2 py-1 hover:text-emerald-600">{{ 'nav.home' | translate }}</a>
+          <a routerLink="/products" class="px-2 py-1 hover:text-emerald-600">{{ 'nav.products' | translate }}</a>
+          <a routerLink="/wishlist" class="px-2 py-1 hover:text-emerald-600">{{ 'nav.wishlist' | translate }}</a>
+          <a routerLink="/checkout" class="px-2 py-1 hover:text-emerald-600">{{ 'nav.checkout' | translate }}</a>
+          <a routerLink="/my-orders" class="px-2 py-1 hover:text-emerald-600">{{ 'nav.myOrders' | translate }}</a>
+
+          <!-- زرار تبديل اللغة في المنيو بتاع الموبايل -->
+          <div class="px-2 pt-1">
+            <app-language-switcher></app-language-switcher>
+          </div>
 
           @if (auth.isLoggedIn()) {
             <div class="flex items-center justify-between px-2 pt-2">
               <span class="text-sm font-medium text-gray-700">
-                Hello, {{ auth.currentUser()?.name }}
+                {{ 'nav.hello' | translate }}, {{ auth.currentUser()?.name }}
               </span>
               <button
                 (click)="logout()"
                 class="text-sm font-semibold text-red-600 border border-red-500 rounded-lg px-3 py-1.5 hover:bg-red-600 hover:text-white transition-all"
               >
-                Logout
+                {{ 'nav.logout' | translate }}
               </button>
             </div>
           } @else {
             <div class="flex gap-2 pt-2">
-              <a routerLink="/login" class="flex-1 text-center py-2 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">Login</a>
-              <a routerLink="/register" class="flex-1 text-center py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all">Register</a>
+              <a routerLink="/login" class="flex-1 text-center py-2 text-sm font-semibold text-emerald-600 border border-emerald-500 rounded-lg hover:bg-emerald-600 hover:text-white transition-all">{{ 'nav.login' | translate }}</a>
+              <a routerLink="/register" class="flex-1 text-center py-2 text-sm font-semibold text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-all">{{ 'nav.register' | translate }}</a>
             </div>
           }
         </div>

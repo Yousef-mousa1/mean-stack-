@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "checkout": "Checkout",
+    "myOrders": "My Orders",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "hello": "Hello"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "available": "Available",
+    "price": "Price",
+    "stock": "Stock",
+    "noProducts": "No products found.",
+    "fetchError": "There was a problem fetching the products",
+    "serverError": "Couldn't reach the server. Make sure the backend is running.",
+    "addedToCart": "{{ name }} was added to your cart",
+    "mustLogin": "You need to log in first to add to your cart",
+    "addToCartError": "There was a problem adding the product to your cart"
+  },
+  "orders": {
+    "title": "My Orders",
+    "empty": "You haven't placed any orders yet.",
+    "cancel": "Cancel Order",
+    "cancelling": "Cancelling...",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search...",
+    "currency": "EGP"
+  }
+}

@@ -24,11 +24,13 @@
           alt="product.name"
           class="w-full h-36 object-contain"
         />
+        <!-- اسم/براند المنتج ده بيانات من الداتابيز مش من ملفات الترجمة -->
+        <!-- عشان يتغير مع اللغة لازم حقلين منفصلين في الـ Product model (name_en/name_ar) -->
         <h3 class="font-semibold mt-2">{{ product.name }}</h3>
         <p class="text-gray-500 text-sm">{{ product.brand }}</p>
 
         <p class="font-bold text-lg mt-1">
-          {{ product.price }} جنيه
+          {{ product.price }} {{ 'common.currency' | translate }}
           @if (product.oldPrice) {
             <span class="line-through text-gray-400 text-sm ms-2">{{ product.oldPrice }}</span>
           }
@@ -36,11 +38,11 @@
 
         @if (product.isAvailable) {
           <span class="inline-block mt-1 px-2 py-1 rounded-md text-xs bg-green-100 text-green-700">
-            متاح ({{ product.stock }})
+            {{ 'product.available' | translate }} ({{ product.stock }})
           </span>
         } @else {
           <span class="inline-block mt-1 px-2 py-1 rounded-md text-xs bg-red-100 text-red-700">
-            غير متاح
+            {{ 'product.outOfStock' | translate }}
           </span>
         }
 
@@ -49,11 +51,11 @@
           [disabled]="!product.isAvailable"
           class="w-full mt-3 py-2 rounded-lg text-white font-medium bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
-          أضف للسلة
+          {{ 'product.addToCart' | translate }}
         </button>
       </div>
     } @empty {
-      <p class="text-gray-500 col-span-full">مفيش منتجات دلوقتي.</p>
+      <p class="text-gray-500 col-span-full">{{ 'product.noProducts' | translate }}</p>
     }
   </div>
 </section>
