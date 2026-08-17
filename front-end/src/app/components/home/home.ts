@@ -1,18 +1,71 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CategoriesService } from '../../service/categories';
+import { Icategory } from '../../model/icategory';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule,RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home {
+export class Home implements OnInit {
   heroImage = 'assets/log1.jpg';
+
+  // بيتملى من الـ API بدل ما يكون array ثابت، عشان أي فئة جديدة تظهر تلقائيًا
+  categories = signal<Icategory[]>([]);
+
+  // صورة افتراضية عامة لو الفئة اسمها جديد كليًا ومفيش ليها صورة في الداتابيز ولا في المابينج تحت
+  private readonly fallbackImage = 'assets/hh.jpeg';
+
+  // مابينج محلي بالصور القديمة، بيشتغل بس كـ fallback للفئات اللي متسجلتش لها صورة في الداتابيز
+  // المفاتيح هنا لازم تكون بدون رموز أو مسافات، بنفس طريقة التطبيع في getCategoryImage تحت
+  private readonly categoryImageMap: Record<string, string> = {
+    'bakery': 'assets/bakery.jpeg',
+    'dairyeggs': 'assets/d&epng.png',
+    'meatseafood': 'assets/m&s.jpeg',
+    'fruitsvegetables': 'assets/f&v.png',
+    'frozen': 'assets/frozen.png',
+    'beverages': 'assets/drinks.png',
+    'snacks': 'assets/snacks.png',
+    'pantrygrocery': 'assets/p&g.jpeg',
+    'household': 'assets/hh.jpeg',
+    'personalcare': 'assets/pc.jpeg',
+  };
+
+  constructor(private categoriesService: CategoriesService) {}
+
+  ngOnInit() {
+    this.fetchCategories();
+  }
+
+  fetchCategories() {
+    this.categoriesService.getAll().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.categories.set(res.data);
+        }
+      },
+      error: (err) => {
+        console.error('Fetch categories error:', err);
+      },
+    });
+  }
+
+  // بترجع صورة الفئة: من الداتابيز الأول، وإلا من المابينج المحلي بالاسم، وإلا صورة عامة افتراضية
+  getCategoryImage(category: Icategory): string {
+    if (category.image) return category.image;
+
+    const normalizedName = category.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return this.categoryImageMap[normalizedName] || this.fallbackImage;
+  }
+
   flipCard(card: any) {
     card.flipped = !card.flipped;
   }
+
   cards = [
     {
       image: 'assets/ab.jpeg',
@@ -67,21 +120,6 @@ export class Home {
       ],
       flipped: false
     }
-  ];
-
-  // ملحوظة: أسماء الكاتيجوريز دي لازم تتطابق تمامًا (بعد الـ normalize) مع
-  // أسماء الـ Categories الموجودة في الباك اند، وإلا الفلترة بالكاتيجوري مش هتشتغل.
-  categories = [
-    { name: 'Bakery', image: 'assets/bakery.jpeg' },
-    { name: 'Dairy & Eggs', image: 'assets/d&epng.png' },
-    { name: 'Meat & Seafood', image: 'assets/m&s.jpeg' },
-    { name: 'Fruits & Vegetables', image: 'assets/f&v.png' },
-    { name: 'Frozen', image: 'assets/frozen.png' },
-    { name: 'Beverages', image: 'assets/drinks.png' },
-    { name: 'Snacks', image: 'assets/snacks.png' },
-    { name: 'Pantry & Grocery', image: 'assets/p&g.jpeg' },
-    { name: 'Household', image: 'assets/hh.jpeg' },
-    { name: 'Personal Care', image: 'assets/pc.jpeg' }
   ];
 
   features = [

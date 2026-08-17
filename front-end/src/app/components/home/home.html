@@ -43,41 +43,10 @@
         </h2>
       </div>
 
-      <!-- أول 8 Categories -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <!-- كل الفئات، جاية ديناميكيًا من الـ API -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
 
-        @for(cat of categories.slice(0, 8); track cat.name){
-
-        <a
-          [routerLink]="['/products', cat.name]"
-          class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2 duration-300 cursor-pointer block"
-        >
-
-          <img
-            [src]="cat.image"
-            alt="cat.name"
-            [title]="cat.name"
-            class="w-full h-36 sm:h-48 md:h-64 object-cover"
-          >
-
-          <div class="p-2 sm:p-4">
-            <p class="text-center font-semibold text-gray-800 text-xs sm:text-base">
-              {{ cat.name }}
-            </p>
-          </div>
-
-        </a>
-
-        }
-
-      </div>
-
-      <!-- آخر Category -->
-      <div class="flex justify-center">
-
-        <div class="grid grid-cols-2 gap-3 sm:gap-6 w-full max-w-sm sm:max-w-lg">
-
-          @for(cat of categories.slice(8, 10); track cat.name){
+        @for (cat of categories(); track cat._id) {
 
           <a
             [routerLink]="['/products', cat.name]"
@@ -85,9 +54,9 @@
           >
 
             <img
-              [src]="cat.image"
-              alt="cat.name"
-              title="cat.name"
+              [src]="getCategoryImage(cat)"
+              [alt]="cat.name"
+              [title]="cat.name"
               class="w-full h-36 sm:h-48 md:h-64 object-cover"
             >
 
@@ -99,9 +68,11 @@
 
           </a>
 
-          }
-
-        </div>
+        } @empty {
+          <p class="col-span-full text-center text-gray-400 py-6">
+            No categories found.
+          </p>
+        }
 
       </div>
 
